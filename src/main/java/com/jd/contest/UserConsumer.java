@@ -79,7 +79,7 @@ public class UserConsumer implements Runnable
 	private void handle(int userId) {
         List<Map<String, Object>> insertList = new ArrayList<>();
         for(int productId : productIds){
-            String clickSql = "select count(1) as count from jd_contest.action where type=6 and user_id=" + userId + " and sku_id=" + productId;
+            /*String clickSql = "select count(1) as count from jd_contest.action where type=6 and user_id=" + userId + " and sku_id=" + productId;
             List<Map<String, Object>> clickResult = DBOperation.queryBySql(conn, clickSql);
 //            if(0 == clickResult.size()){
 //                continue;
@@ -96,17 +96,17 @@ public class UserConsumer implements Runnable
 
             int hasClick = 1;
 
-            String clickModelIds = "";
-            String clickModelSql = "select model_id from jd_contest.action where type=6 and user_id=" + userId + " and sku_id=" + productId;
-            List<Map<String, Object>> clickModelResult = DBOperation.queryBySql(conn, clickModelSql);
-            for(Map<String, Object> clickModelRow : clickModelResult){
-                int modelId = (int) clickModelRow.get("model_id");
+            String modelIds = "";
+            String modelSql = "select model_id from jd_contest.action where type=6 and user_id=" + userId + " and sku_id=" + productId;
+            List<Map<String, Object>> modelResult = DBOperation.queryBySql(conn, modelSql);
+            for(Map<String, Object> modelRow : modelResult){
+                int modelId = (int) modelRow.get("model_id");
                 if(modelId > 0){
-                    clickModelIds += modelId + ",";
+                    modelIds += modelId + ",";
                 }
             }
 
-            StringUtils.removeEnd(clickModelIds, ",");
+            StringUtils.removeEnd(modelIds, ",");
 
             String detailSql = "select count(1) as count from jd_contest.action where type=1 and user_id=" + userId + " and sku_id=" + productId;
             List<Map<String, Object>> detailResult = DBOperation.queryBySql(conn, detailSql);
@@ -122,18 +122,6 @@ public class UserConsumer implements Runnable
                 hasDetail = 1;
             }
 
-            String detailModelIds = "";
-            String detailModelSql = "select model_id from jd_contest.action where type=1 and user_id=" + userId + " and sku_id=" + productId;
-            List<Map<String, Object>> detailModelResult = DBOperation.queryBySql(conn, detailModelSql);
-            for(Map<String, Object> detailModelRow : detailModelResult){
-                int modelId = (int) detailModelRow.get("model_id");
-                if(modelId > 0){
-                    detailModelIds += modelId + ",";
-                }
-            }
-
-            StringUtils.removeEnd(detailModelIds, ",");
-
             String cartSql = "select count(1) as count from jd_contest.action where type=2 and user_id=" + userId + " and sku_id=" + productId;
             List<Map<String, Object>> cartResult = DBOperation.queryBySql(conn, cartSql);
 
@@ -148,18 +136,6 @@ public class UserConsumer implements Runnable
                 hasCart = 1;
             }
 
-            String cartModelIds = "";
-            String cartModelSql = "select model_id from jd_contest.action where type=2 and user_id=" + userId + " and sku_id=" + productId;
-            List<Map<String, Object>> cartModelResult = DBOperation.queryBySql(conn, cartModelSql);
-            for(Map<String, Object> cartModelRow : cartModelResult){
-                int modelId = (int) cartModelRow.get("model_id");
-                if(modelId > 0){
-                    cartModelIds += modelId + ",";
-                }
-            }
-
-            StringUtils.removeEnd(cartModelIds, ",");
-
             String cartDeleteSql = "select count(1) as count from jd_contest.action where type=3 and user_id=" + userId + " and sku_id=" + productId;
             List<Map<String, Object>> cartDeleteResult = DBOperation.queryBySql(conn, cartDeleteSql);
 
@@ -173,18 +149,6 @@ public class UserConsumer implements Runnable
             if(cartDelete > 0){
                 hasCartDelete = 1;
             }
-
-            String cartDeleteModelIds = "";
-            String cartDeleteModelSql = "select model_id from jd_contest.action where type=3 and user_id=" + userId + " and sku_id=" + productId;
-            List<Map<String, Object>> cartDeleteModelResult = DBOperation.queryBySql(conn, cartDeleteModelSql);
-            for(Map<String, Object> cartDeleteModelRow : cartDeleteModelResult){
-                int modelId = (int) cartDeleteModelRow.get("model_id");
-                if(modelId > 0){
-                    cartDeleteModelIds += modelId + ",";
-                }
-            }
-
-            StringUtils.removeEnd(cartDeleteModelIds, ",");
 
             String buySql = "select count(1) as count from jd_contest.action where type=4 and user_id=" + userId + " and sku_id=" + productId;
             List<Map<String, Object>> buyResult = DBOperation.queryBySql(conn, buySql);
@@ -205,18 +169,6 @@ public class UserConsumer implements Runnable
                 buyAgain = 1;
             }
 
-            String buyModelIds = "";
-            String buyModelSql = "select model_id from jd_contest.action where type=4 and user_id=" + userId + " and sku_id=" + productId;
-            List<Map<String, Object>> buyModelResult = DBOperation.queryBySql(conn, buyModelSql);
-            for(Map<String, Object> buyModelRow : buyModelResult){
-                int modelId = (int) buyModelRow.get("model_id");
-                if(modelId > 0){
-                    buyModelIds += modelId + ",";
-                }
-            }
-
-            StringUtils.removeEnd(buyModelIds, ",");
-
             String followSql = "select count(1) as count from jd_contest.action where type=5 and user_id=" + userId + " and sku_id=" + productId;
             List<Map<String, Object>> followResult = DBOperation.queryBySql(conn, followSql);
 
@@ -229,25 +181,62 @@ public class UserConsumer implements Runnable
             int hasFollow = 0;
             if(follow > 0){
                 hasFollow = 1;
-            }
+            }*/
 
-            String followModelIds = "";
-            String followModelSql = "select model_id from jd_contest.action where type=5 and user_id=" + userId + " and sku_id=" + productId;
-            List<Map<String, Object>> followModelResult = DBOperation.queryBySql(conn, followModelSql);
-            for(Map<String, Object> followModelRow : followModelResult){
-                int modelId = (int) followModelRow.get("model_id");
-                if(modelId > 0){
-                    followModelIds += modelId + ",";
-                }
+            String sql = "select count(if(type=6,1,null)) as click,count(if(type=1,1,null)) as detail,count(if(type=2,1,null)) as cart,count(if(type=3,1,null)) as cart_delete,count(if(type=4,1,null)) as buy,count(if(type=5,1,null)) as follow from jd_contest.action where user_id=" + userId + " and sku_id=" + productId;
+            List<Map<String, Object>> result = DBOperation.queryBySql(conn, sql);
+            long click = 0, detail = 0, cart = 0, cartDelete = 0, buy = 0, follow = 0;
+            if(result.size() > 0){
+                Map<String, Object> row = result.get(0);
+                click = (long) row.get("click");
+                detail = (long) row.get("detail");
+                cart = (long) row.get("cart");
+                cartDelete = (long) row.get("cart_delete");
+                buy = (long) row.get("buy");
+                follow = (long) row.get("follow");
             }
-
-            StringUtils.removeEnd(followModelIds, ",");
 
             if(0 == click && 0 == detail && 0 == cart && 0 == cartDelete && 0 == buy && 0 == follow){
                 continue;
             }
 
             log.info("user_id: " + userId + ", product_id: " + productId + ", click: " + click + ", detail: " + detail + ", cart: " + cart + ", cartDelete: " + cartDelete + ", buy: " + buy + ", follow: " + follow);
+
+            int hasClick = 0;
+            if(hasClick >0){
+                hasClick = 1;
+            }
+
+            int hasDetail = 0;
+            if(detail > 0){
+                hasDetail = 1;
+            }
+
+            int hasCart = 0;
+            if(cart > 0){
+                hasCart = 1;
+            }
+
+            int hasCartDelete = 0;
+            if(cartDelete > 0){
+                hasCartDelete = 1;
+            }
+
+            int hasBuy = 0;
+            if(buy > 0){
+                hasBuy = 1;
+            }
+
+            int buyAgain = 0;
+            if(buy > 1){
+                buyAgain = 1;
+            }
+
+            int hasFollow = 0;
+            if(follow > 0){
+                hasFollow = 1;
+            }
+
             Map<String, Object> user = userInfo.get(userId);
             Map<String, Object> product = productInfo.get(productId);
             Map<String, Object> comment = commentInfo.get(productId);
@@ -257,23 +246,18 @@ public class UserConsumer implements Runnable
             insertMap.put("sku_id", productId);
             insertMap.put("click", click);
             insertMap.put("has_click", hasClick);
-            insertMap.put("click_model_id", clickModelIds);
+//            insertMap.put("model_id", modelIds);
             insertMap.put("detail", detail);
             insertMap.put("has_detail", hasDetail);
-            insertMap.put("detail_model_id", detailModelIds);
             insertMap.put("cart", cart);
             insertMap.put("has_cart", hasCart);
-            insertMap.put("cart_model_id", cartModelIds);
             insertMap.put("cart_delete", cartDelete);
             insertMap.put("has_cart_delete", hasCartDelete);
-            insertMap.put("cart_delete_model_id", cartDeleteModelIds);
             insertMap.put("buy", buy);
             insertMap.put("has_buy", hasBuy);
             insertMap.put("buy_again", buyAgain);
-            insertMap.put("buy_model_id", buyModelIds);
             insertMap.put("follow", follow);
             insertMap.put("has_follow", hasFollow);
-            insertMap.put("follow_model_id", followModelIds);
             if(null != user){
                 insertMap.put("age", user.get("age"));
                 insertMap.put("sex", user.get("sex"));
