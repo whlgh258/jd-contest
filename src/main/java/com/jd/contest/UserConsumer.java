@@ -79,6 +79,7 @@ public class UserConsumer implements Runnable
 	private void handle(int userId) {
         List<Map<String, Object>> insertList = new ArrayList<>();
         for(int productId : productIds){
+            Map<String, Object> insertMap = new HashMap<>();
             /*String clickSql = "select count(1) as count from jd_contest.action where type=6 and user_id=" + userId + " and sku_id=" + productId;
             List<Map<String, Object>> clickResult = DBOperation.queryBySql(conn, clickSql);
 //            if(0 == clickResult.size()){
@@ -241,7 +242,6 @@ public class UserConsumer implements Runnable
             Map<String, Object> product = productInfo.get(productId);
             Map<String, Object> comment = commentInfo.get(productId);
 
-            Map<String, Object> insertMap = new HashMap<>();
             insertMap.put("user_id", userId);
             insertMap.put("sku_id", productId);
             insertMap.put("click", click);
