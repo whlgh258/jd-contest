@@ -47,7 +47,6 @@ public class MultiThreadsController
             List<Integer> productIds = new ArrayList<>();
             String productSql = "select distinct sku_id from jd_contest.action order by sku_id";
             List<Map<String, Object>> productResult = DBOperation.queryBySql(productSql);
-            productIds = new ArrayList<>();
             for(Map<String, Object> productRow : productResult){
                 productIds.add((int) productRow.get("sku_id"));
             }
