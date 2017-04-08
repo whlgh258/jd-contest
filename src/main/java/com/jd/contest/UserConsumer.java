@@ -204,7 +204,7 @@ public class UserConsumer implements Runnable
             log.info("user_id: " + userId + ", product_id: " + productId + ", click: " + click + ", detail: " + detail + ", cart: " + cart + ", cartDelete: " + cartDelete + ", buy: " + buy + ", follow: " + follow);
 
             int hasClick = 0;
-            if(hasClick >0){
+            if(click >0){
                 hasClick = 1;
             }
 
