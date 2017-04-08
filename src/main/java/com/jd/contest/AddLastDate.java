@@ -20,14 +20,14 @@ public class AddLastDate {
 
     public static void main(String[] args) {
         Connection conn = DBConnection.getConnection();
-        Connection[] connections = new Connection[60];
+        Connection[] connections = new Connection[20];
         try
         {
             long CurrentTime = System.currentTimeMillis();
-            BlockingQueue<Integer> numberQueue = new ArrayBlockingQueue<>(30);
+            BlockingQueue<Integer> numberQueue = new ArrayBlockingQueue<>(10);
 
             List<Integer> starts = new ArrayList<>();
-            for(int i = 0; i < 3864885; i += 200){
+            for(int i = 0; i < 3864885; i += 1000){
                 starts.add(i);
             }
 
@@ -40,7 +40,7 @@ public class AddLastDate {
             }
 
             //start consumer
-            Thread [] threads = new Thread[60];
+            Thread [] threads = new Thread[20];
             for( int i = 0; i < threads.length; i++ )
             {
                 threads[i] = new Thread(new NumberConsumer(numberQueue, connections[i]));
@@ -102,7 +102,7 @@ class NumberProducer implements Runnable
         int i = 0;
         for( int userId : userIds )
         {
-            if(++i % 100 == 0){
+            if(++i % 1000 == 0){
                 log.info("---------------------------------------- " + i + " --------------------------------------------");
             }
             try
@@ -152,7 +152,7 @@ class NumberConsumer implements Runnable {
     }
 
     private void handle(int start) {
-        String sql = "select user_id,sku_id,click,detail,cart,cart_delete,buy,follow from jd_contest.user_action limit " +  start + ",200";
+        /*String sql = "select user_id,sku_id,click,detail,cart,cart_delete,buy,follow from jd_contest.user_action limit " +  start + ",1000";
         log.info(sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(conn, sql);
         for(Map<String, Object> row : result){
@@ -165,9 +165,9 @@ class NumberConsumer implements Runnable {
             int buy = (int) row.get("buy");
             int follow = (int) row.get("follow");
 
-            /**
+            *//**
              * buy(4) > cart(2) > cart_delete(3) > follow(5) > click(6) > detail(1)
-             */
+             *//*
             Date lastActionDate = null;
             String lastSql = "select date(max(time)) as last_date from jd_contest.action where user_id=" + userId + " and sku_id=" + productId + " and type=";
             if(buy > 0){
@@ -198,6 +198,19 @@ class NumberConsumer implements Runnable {
                     String updateSql = "update jd_contest.user_action set last_action_date='" + lastDate + "' where user_id=" + userId + " and sku_id=" + productId;
                     DBOperation.update(conn, updateSql);
                 }
+            }
+        }*/
+
+        String sql = "select user_id,sku_id,click from jd_contest.user_action limit " +  start + ",1000";
+        log.info(sql);
+        List<Map<String, Object>> result = DBOperation.queryBySql(conn, sql);
+        for(Map<String, Object> row : result){
+            int userId = (int) row.get("user_id");
+            int skuId = (int) row.get("sku_id");
+            int click = (int) row.get("click");
+            if(click > 0){
+                String updateSql = "update jd_contest.user_action set has_click=1 where user_id=" + userId + " and sku_id=" + skuId;
+                DBOperation.update(conn, updateSql);
             }
         }
     }
