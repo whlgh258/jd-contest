@@ -20,19 +20,28 @@ public class AddLastDate {
 
     public static void main(String[] args) {
         Connection conn = DBConnection.getConnection();
-        Connection[] connections = new Connection[20];
+        Connection[] connections = new Connection[50];
         try
         {
             long CurrentTime = System.currentTimeMillis();
-            BlockingQueue<Integer> numberQueue = new ArrayBlockingQueue<>(10);
+            BlockingQueue<String> numberQueue = new ArrayBlockingQueue<>(25);
 
-            List<Integer> starts = new ArrayList<>();
+            /*List<Integer> starts = new ArrayList<>();
             for(int i = 0; i < 3864885; i += 1000){
                 starts.add(i);
+            }*/
+
+            List<String> list = new ArrayList<>();
+            String sql = "select user_id,sku_id from user_action";
+            List<Map<String, Object>> result = DBOperation.queryBySql(conn, sql);
+            for(Map<String, Object> row : result){
+                int userId = (int) row.get("user_id");
+                int productId = (int) row.get("sku_id");
+                list.add(userId + "_" + productId);
             }
 
             //start producer
-            NumberProducer producer = new NumberProducer(numberQueue, starts);
+            NumberProducer producer = new NumberProducer(numberQueue, list);
             new Thread(producer).start();
 
             for(int i = 0; i < connections.length; i++){
@@ -40,7 +49,7 @@ public class AddLastDate {
             }
 
             //start consumer
-            Thread [] threads = new Thread[20];
+            Thread [] threads = new Thread[50];
             for( int i = 0; i < threads.length; i++ )
             {
                 threads[i] = new Thread(new NumberConsumer(numberQueue, connections[i]));
@@ -74,10 +83,10 @@ class NumberProducer implements Runnable
 {
     private static final Logger log = Logger.getLogger( UserProducer.class );
 
-    private BlockingQueue<Integer> numberQueue;
-    private List<Integer> userIds;
+    private BlockingQueue<String> numberQueue;
+    private List<String> userIds;
 
-    public NumberProducer(BlockingQueue<Integer> numberQueue, List<Integer> userIds)
+    public NumberProducer(BlockingQueue<String> numberQueue, List<String> userIds)
     {
         this.numberQueue = numberQueue;
         this.userIds = userIds;
@@ -89,7 +98,7 @@ class NumberProducer implements Runnable
         try
         {
             produceUser();
-            numberQueue.add(Integer.MAX_VALUE);
+            numberQueue.add("@@@@@");
         }
         catch ( Exception e )
         {
@@ -100,14 +109,14 @@ class NumberProducer implements Runnable
     private void produceUser()
     {
         int i = 0;
-        for( int userId : userIds )
+        for(String key : userIds)
         {
             if(++i % 1000 == 0){
                 log.info("---------------------------------------- " + i + " --------------------------------------------");
             }
             try
             {
-                numberQueue.put( userId );
+                numberQueue.put(key);
             }
             catch ( InterruptedException e )
             {
@@ -121,10 +130,10 @@ class NumberConsumer implements Runnable {
 
     private static final Logger log = Logger.getLogger(UserConsumer.class);
 
-    private BlockingQueue<Integer> numberQueue;
+    private BlockingQueue<String> numberQueue;
     private Connection conn;
 
-    public NumberConsumer(BlockingQueue<Integer> numberQueue, Connection conn) {
+    public NumberConsumer(BlockingQueue<String> numberQueue, Connection conn) {
         this.numberQueue = numberQueue;
         this.conn = conn;
     }
@@ -132,18 +141,18 @@ class NumberConsumer implements Runnable {
     @Override
     public void run() {
         boolean doneFlag = false;
-        int start = 0;
+        String key = "";
 
         while (!doneFlag) {
             try {
-                start = numberQueue.take();
+                key = numberQueue.take();
 
                 //the last row
-                if (start == Integer.MAX_VALUE) {
-                    numberQueue.put(Integer.MAX_VALUE);
+                if (key.equals("@@@@@")) {
+                    numberQueue.put("@@@@@");
                     doneFlag = true;
                 } else {
-                    handle(start);
+                    handle(key);
                 }
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -151,13 +160,14 @@ class NumberConsumer implements Runnable {
         }
     }
 
-    private void handle(int start) {
-        /*String sql = "select user_id,sku_id,click,detail,cart,cart_delete,buy,follow from jd_contest.user_action limit " +  start + ",1000";
+    private void handle(String key) {
+        int userId = Integer.parseInt(key.split("_")[0]);
+        int productId = Integer.parseInt(key.split("_")[1]);
+        String sql = "select user_id,sku_id,click,detail,cart,cart_delete,buy,follow from jd_contest.user_action where user_id=" + userId + " and sku_id=" + productId;
         log.info(sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(conn, sql);
-        for(Map<String, Object> row : result){
-            int userId = (int) row.get("user_id");
-            int productId = (int) row.get("sku_id");
+        if(result.size() > 0){
+            Map<String, Object> row = result.get(0);
             int click = (int) row.get("click");
             int detail = (int) row.get("detail");
             int cart = (int) row.get("cart");
@@ -165,11 +175,11 @@ class NumberConsumer implements Runnable {
             int buy = (int) row.get("buy");
             int follow = (int) row.get("follow");
 
-            *//**
-             * buy(4) > cart(2) > cart_delete(3) > follow(5) > click(6) > detail(1)
-             *//*
+            /**
+             * cart(2) > cart_delete(3) > follow(5) > click(6) > detail(1)
+             */
             Date lastActionDate = null;
-            String lastSql = "select date(max(time)) as last_date from jd_contest.action where user_id=" + userId + " and sku_id=" + productId + " and type=";
+            String lastSql = "select date(max(time)) as last_date from jd_contest.action where date(time)<='2016-04-10' and user_id=" + userId + " and sku_id=" + productId + " and type=";
             if(buy > 0){
                 lastSql += 4;
             }
@@ -185,7 +195,7 @@ class NumberConsumer implements Runnable {
             else if(click > 0){
                 lastSql += 6;
             }
-            else {
+            else if(detail > 0) {
                 lastSql += 1;
             }
 
@@ -199,9 +209,9 @@ class NumberConsumer implements Runnable {
                     DBOperation.update(conn, updateSql);
                 }
             }
-        }*/
+        }
 
-        String sql = "select user_id,sku_id,click from jd_contest.user_action limit " +  start + ",1000";
+        /*String sql = "select user_id,sku_id,click from jd_contest.user_action limit " +  start + ",1000";
         log.info(sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(conn, sql);
         for(Map<String, Object> row : result){
@@ -212,6 +222,21 @@ class NumberConsumer implements Runnable {
                 String updateSql = "update jd_contest.user_action set has_click=1 where user_id=" + userId + " and sku_id=" + skuId;
                 DBOperation.update(conn, updateSql);
             }
-        }
+        }*/
+
+        /*int userId = Integer.parseInt(key.split("_")[0]);
+        int productId = Integer.parseInt(key.split("_")[1]);
+
+        String timeSql = "select date(max(time)) as last_buy_date from action where type=4 and user_id=" + userId + " and sku_id=" + productId;
+        List<Map<String, Object>> timeResult = DBOperation.queryBySql(conn, timeSql);
+        if(timeResult.size() > 0){
+            Map<String, Object> timeRow = timeResult.get(0);
+            Date lastBuyDate = null;
+            if(timeRow.size() > 0){
+                lastBuyDate = (Date) timeRow.get("last_buy_date");
+                String updateSql = "update user_action set last_buy_date='" + lastBuyDate + "' where user_id=" + userId + " and sku_id=" + productId;
+                DBOperation.update(conn, updateSql);
+            }
+        }*/
     }
 }

@@ -8,10 +8,7 @@ import org.apache.log4j.Logger;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wanghl on 17-4-8.
@@ -37,7 +34,7 @@ public class UserBuySimilarityFile {
             productIds.add((int) productRow.get("sku_id"));
         }
 
-        Map<String, Integer> buyMap = new HashMap<>();
+        Map<String, Integer> buyMap = new LinkedHashMap<>();
         String buySql = "select user_id,sku_id,buy from jd_contest.user_action where buy>0";
         List<Map<String, Object>> buyResult = DBOperation.queryBySql(conn, buySql);
         for(Map<String, Object> buyRow : buyResult){
