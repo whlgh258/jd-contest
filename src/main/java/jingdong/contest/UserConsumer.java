@@ -88,29 +88,35 @@ public class UserConsumer implements Runnable
                     String key = userId + "_" + productId + "_" + date + "_" + type;
                     String value = detailMap.get(key);
 
-                    String[] parts = value.split("_");
-                    int count = Integer.parseInt(parts[0]);
-                    cate = Integer.parseInt(parts[1]);
-                    brand = Integer.parseInt(parts[2]);
+                    if(null != value){
+                        String[] parts = value.split("_");
+                        int count = Integer.parseInt(parts[0]);
+                        cate = Integer.parseInt(parts[1]);
+                        brand = Integer.parseInt(parts[2]);
 
-                    if(1 == type) {
-                        detail = count;
+                        if(1 == type) {
+                            detail = count;
+                        }
+                        else if(2 ==type) {
+                            cart = count;
+                        }
+                        else if(3 == type) {
+                            cartDelete = count;
+                        }
+                        else if(4 == type) {
+                            buy = count;
+                        }
+                        else if(5 == type) {
+                            follow = count;
+                        }
+                        else if(6 == type) {
+                            click = count;
+                        }
                     }
-                    else if(2 ==type) {
-                        cart = count;
-                    }
-                    else if(3 == type) {
-                        cartDelete = count;
-                    }
-                    else if(4 == type) {
-                        buy = count;
-                    }
-                    else if(5 == type) {
-                        follow = count;
-                    }
-                    else if(6 == type) {
-                        click = count;
-                    }
+                }
+
+                if(0 == click && 0 == detail && 0 == cart && 0 == cartDelete && 0 == buy && 0 == follow){
+                    continue;
                 }
 
                 log.info(date + ": user_id: " + userId + ", product_id: " + productId + ", click: " + click + ", detail: " + detail + ", cart: " + cart + ", cartDelete: " + cartDelete + ", buy: " + buy + ", follow: " + follow);

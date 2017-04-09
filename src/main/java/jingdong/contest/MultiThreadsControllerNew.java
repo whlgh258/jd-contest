@@ -24,9 +24,9 @@ import java.util.concurrent.BlockingQueue;
  * @version 0.1
  * 2012-11-27
  */
-public class MultiThreadsController
+public class MultiThreadsControllerNew
 {
-	private static final Logger log = Logger.getLogger( MultiThreadsController.class );
+	private static final Logger log = Logger.getLogger( MultiThreadsControllerNew.class );
 	
 	/**
 	 * contoller function
@@ -162,7 +162,7 @@ public class MultiThreadsController
 	
 	public static void main( String[] args )
 	{
-		MultiThreadsController controller = new MultiThreadsController();
+		MultiThreadsControllerNew controller = new MultiThreadsControllerNew();
 		controller.control();
 	}
 }
