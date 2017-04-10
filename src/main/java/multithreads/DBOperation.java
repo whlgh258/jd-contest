@@ -10,7 +10,7 @@ import java.util.*;
 public class DBOperation
 {
 	private final static Logger log = Logger.getLogger( DBConnection.class );
-	private final static int commitSize = 10000;
+	private final static int commitSize = 100000;
 	
 	
 	public static List<String> getTableNameList()
@@ -633,13 +633,14 @@ public class DBOperation
 				if( ( j + 1 ) % commitSize == 0 )
 				{
 					int[] batchCommit = pstmt.executeBatch();
+					log.info("batch commit: " + batchCommit.length);
 					batchCommitSize += batchCommit.length;
 					conn.commit(); 
 					pstmt.clearBatch();
 				}
 			}
 			int[] batchCommit = pstmt.executeBatch();
-			log.info( "batch commit: " + ( batchCommitSize + batchCommit.length ));
+			log.info( "total batch commit: " + ( batchCommitSize + batchCommit.length ));
 			conn.commit(); 
 			pstmt.clearBatch();
 		}
