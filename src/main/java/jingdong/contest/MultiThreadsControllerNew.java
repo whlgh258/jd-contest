@@ -43,7 +43,7 @@ public class MultiThreadsControllerNew
 			BlockingQueue<Integer> userQueue = new ArrayBlockingQueue<>(10);
 
             List<Integer> productIds = new ArrayList<>();
-            String productSql = "select distinct sku_id from action order by sku_id";
+            String productSql = "select distinct sku_id from action_1 order by sku_id";
             List<Map<String, Object>> productResult = DBOperation.queryBySql(productSql);
             for(Map<String, Object> productRow : productResult){
                 productIds.add((int) productRow.get("sku_id"));
@@ -75,14 +75,15 @@ public class MultiThreadsControllerNew
             }
 
             List<String> dates = new ArrayList<>();
-            String dateSql = "select date(min(time)) as min,date(max(time)) as max from action";
+            String dateSql = "select date(min(time)) as min,date(max(time)) as max from action_1";
             List<Map<String, Object>> dateResult = DBOperation.queryBySql(conn, dateSql);
             if(dateResult.size() > 0){
                 Map<String, Object> dateRow = dateResult.get(0);
                 Date minDate = (Date) dateRow.get("min");
                 Date maxDate = (Date) dateRow.get("max");
 
-                LocalDate min = LocalDate.parse(minDate.toString());
+//                LocalDate min = LocalDate.parse(minDate.toString());
+                LocalDate min = LocalDate.parse("2016-02-01");
                 LocalDate max = LocalDate.parse(maxDate.toString());
                 for(LocalDate date = min; date.isBefore(max.plusDays(1)); date = date.plusDays(1)){
                     dates.add(date.toString());
@@ -90,7 +91,7 @@ public class MultiThreadsControllerNew
             }
 
             Map<String, String> detailMap = new HashMap<>();
-            String detailSql = "select user_id,sku_id,date(time) as date,type,count(1) as count ,max(cate) as cate,max(brand) as brand from action group by user_id,sku_id,date(time),type having count>0";
+            String detailSql = "select user_id,sku_id,date,type,count(1) as count ,max(cate) as cate,max(brand) as brand from action_1 group by user_id,sku_id,date,type having count>0";
             List<Map<String, Object>> detailResult = DBOperation.queryBySql(conn, detailSql);
             for(Map<String, Object> detailRow : detailResult){
                 int userId = (int) detailRow.get("user_id");
@@ -114,7 +115,7 @@ public class MultiThreadsControllerNew
             log.info("detail size: " + detailMap.size());
 
             List<Integer> userIds = new ArrayList<>();
-            String userSql = "select distinct user_id from action order by user_id";
+            String userSql = "select distinct user_id from action_1 order by user_id";
             List<Map<String, Object>> userResult = DBOperation.queryBySql(conn, userSql);
             log.info("uers size: " + userResult.size());
             for(Map<String, Object> userRow : userResult) {
