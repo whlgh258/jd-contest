@@ -81,8 +81,8 @@ public class UserConsumer implements Runnable
 	private void handle(int userId) {
         List<Map<String, Object>> insertList = new ArrayList<>();
         for(int productId : productIds){
-            Map<String, Object> insertMap = new HashMap<>();
             for(String date : dates){
+                Map<String, Object> insertMap = new HashMap<>();
                 long click = 0, detail = 0, cart = 0, cartDelete = 0, buy = 0, follow = 0, cate = 0, brand = 0;
                 for(int type = 1; type <= 6; type++) {
                     String key = userId + "_" + productId + "_" + date + "_" + type;
@@ -222,7 +222,7 @@ public class UserConsumer implements Runnable
             }
         }
 
-        log.info(userId + ": " + insertList.size());
+//        log.info(userId + ": " + insertList.size());
         DBOperation.insert(conn, "user_action_1", insertList);
 	}
 }

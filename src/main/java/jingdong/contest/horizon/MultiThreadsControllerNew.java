@@ -86,7 +86,8 @@ public class MultiThreadsControllerNew
                 Date minDate = (Date) dateRow.get("min");
                 Date maxDate = (Date) dateRow.get("max");
 
-                LocalDate min = LocalDate.parse(minDate.toString());
+//                LocalDate min = LocalDate.parse(minDate.toString());
+                LocalDate min = LocalDate.parse("2016-02-01");
                 LocalDate max = LocalDate.parse(maxDate.toString());
                 for(LocalDate date = min; date.isBefore(max.plusDays(1)); date = date.plusDays(1)){
                     dates.add(date.toString());

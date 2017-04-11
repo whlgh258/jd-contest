@@ -33,14 +33,15 @@ public class MultiThreadsControllerNew
 	 */
 	public void control()
 	{
+        log.info(Runtime.getRuntime().availableProcessors());
 		Connection conn = DBConnection.getConnection();
-        Connection[] connections = new Connection[20];
+        Connection[] connections = new Connection[3];
 
 		try
 		{
 			long CurrentTime = System.currentTimeMillis();
 
-			BlockingQueue<Integer> userQueue = new ArrayBlockingQueue<>(10);
+			BlockingQueue<Integer> userQueue = new ArrayBlockingQueue<>(2);
 
             List<Integer> productIds = new ArrayList<>();
             String productSql = "select distinct sku_id from action_1 order by sku_id";
@@ -91,7 +92,7 @@ public class MultiThreadsControllerNew
             }
 
             Map<String, String> detailMap = new HashMap<>();
-            String detailSql = "select user_id,sku_id,date,type,count(1) as count ,max(cate) as cate,max(brand) as brand from action_1 group by user_id,sku_id,date,type having count>0";
+            String detailSql = "select user_id,sku_id,date,type,count(1) as count,max(cate) as cate,max(brand) as brand from action_1 group by user_id,sku_id,date,type";
             List<Map<String, Object>> detailResult = DBOperation.queryBySql(conn, detailSql);
             for(Map<String, Object> detailRow : detailResult){
                 int userId = (int) detailRow.get("user_id");
@@ -132,7 +133,7 @@ public class MultiThreadsControllerNew
             }
 			
 			//start consumer
-			Thread [] threads = new Thread[20];
+			Thread [] threads = new Thread[3];
 			for( int i = 0; i < threads.length; i++ )
 			{
 				threads[i] = new Thread(new UserConsumer(userQueue, productIds, userInfo, productInfo, commentInfo, dates, detailMap, connections[i]));

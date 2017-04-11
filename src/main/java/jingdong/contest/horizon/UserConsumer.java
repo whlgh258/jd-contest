@@ -1,6 +1,7 @@
 package jingdong.contest.horizon;
 
 import java.sql.Connection;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,8 +83,9 @@ public class UserConsumer implements Runnable
         List<Map<String, Object>> insertList = new ArrayList<>();
         for(int productId : productIds){
             Map<String, Object> insertMap = new HashMap<>();
+            long click = 0, detail = 0, cart = 0, cartDelete = 0, buy = 0, follow = 0, cate = 0, brand = 0;
             for(String date : dates){
-                long click = 0, detail = 0, cart = 0, cartDelete = 0, buy = 0, follow = 0, cate = 0, brand = 0;
+                click = detail = cart = cartDelete = buy = follow = cate = brand = 0;
                 for(int type = 1; type <= 6; type++) {
                     String key = userId + "_" + productId + "_" + date + "_" + type;
                     String value = detailMap.get(key);
@@ -120,110 +122,93 @@ public class UserConsumer implements Runnable
                 }
 
                 log.info(date + ": user_id: " + userId + ", product_id: " + productId + ", click: " + click + ", detail: " + detail + ", cart: " + cart + ", cartDelete: " + cartDelete + ", buy: " + buy + ", follow: " + follow);
+                LocalDate startDate = LocalDate.parse(date);
+                LocalDate endDate = LocalDate.parse("2016-04-16");
+                int diff = endDate.getDayOfYear() - startDate.getDayOfYear();
 
-                int hasClick = 0;
-                if(click >0){
-                    hasClick = 1;
+                if(click > 0){
+                    insertMap.put("click_" + diff, click);
                 }
 
-                int hasDetail = 0;
                 if(detail > 0){
-                    hasDetail = 1;
+                    insertMap.put("detail_" + diff, detail);
                 }
 
-                int hasCart = 0;
                 if(cart > 0){
-                    hasCart = 1;
+                    insertMap.put("cart_" + diff, cart);
                 }
 
-                int hasCartDelete = 0;
                 if(cartDelete > 0){
-                    hasCartDelete = 1;
+                    insertMap.put("cart_delete_" + diff, cartDelete);
                 }
 
-                int hasBuy = 0;
                 if(buy > 0){
-                    hasBuy = 1;
+                    insertMap.put("buy_" + diff, buy);
                 }
 
-                int buyAgain = 0;
-                if(buy > 1){
-                    buyAgain = 1;
-                }
-
-                int hasFollow = 0;
                 if(follow > 0){
-                    hasFollow = 1;
+                    insertMap.put("follow_" + diff, buy);
                 }
-
-                Map<String, Object> user = userInfo.get(userId);
-                Map<String, Object> product = productInfo.get(productId);
-                Map<String, Object> comment = commentInfo.get(productId);
-
-                insertMap.put("user_id", userId);
-                insertMap.put("sku_id", productId);
-                insertMap.put("click", click);
-                insertMap.put("has_click", hasClick);
-//            insertMap.put("model_id", modelIds);
-                insertMap.put("detail", detail);
-                insertMap.put("has_detail", hasDetail);
-                insertMap.put("cart", cart);
-                insertMap.put("has_cart", hasCart);
-                insertMap.put("cart_delete", cartDelete);
-                insertMap.put("has_cart_delete", hasCartDelete);
-                insertMap.put("buy", buy);
-                insertMap.put("has_buy", hasBuy);
-                insertMap.put("buy_again", buyAgain);
-                insertMap.put("follow", follow);
-                insertMap.put("has_follow", hasFollow);
-                insertMap.put("cate", cate);
-                insertMap.put("brand", brand);
-
-                if(null != user){
-                    insertMap.put("age", user.get("age"));
-                    insertMap.put("sex", user.get("sex"));
-                    insertMap.put("user_level", user.get("user_level"));
-                    insertMap.put("reg_date", user.get("reg_date"));
-                }
-                else {
-                    insertMap.put("age", 0);
-                    insertMap.put("sex", 2);
-                    insertMap.put("user_level", 0);
-                    insertMap.put("reg_date", null);
-                }
-
-                if(null != product){
-                    insertMap.put("attr1", product.get("attr1"));
-                    insertMap.put("attr2", product.get("attr2"));
-                    insertMap.put("attr3", product.get("attr3"));
-                }
-                else {
-                    insertMap.put("attr1", 0);
-                    insertMap.put("attr2", 0);
-                    insertMap.put("attr3", 0);
-                }
-
-                if(null != comment){
-                    insertMap.put("comment_num", comment.get("comment_num"));
-                    insertMap.put("has_bad_comment", comment.get("has_bad_comment"));
-                    insertMap.put("bad_comment_rate", comment.get("bad_comment_rate"));
-                    insertMap.put("last_comment_date", comment.get("last_date"));
-                }
-                else {
-                    insertMap.put("comment_num", 0);
-                    insertMap.put("has_bad_comment", 0);
-                    insertMap.put("bad_comment_rate", 0.0);
-                    insertMap.put("last_comment_date", null);
-                }
-
-                insertMap.put("action_date", date);
-
-                insertList.add(insertMap);
             }
+
+            Map<String, Object> user = userInfo.get(userId);
+            Map<String, Object> product = productInfo.get(productId);
+            Map<String, Object> comment = commentInfo.get(productId);
+
+            insertMap.put("user_id", userId);
+            insertMap.put("sku_id", productId);
+            insertMap.put("click", click);
+//            insertMap.put("model_id", modelIds);
+            insertMap.put("detail", detail);
+            insertMap.put("cart", cart);
+            insertMap.put("cart_delete", cartDelete);
+            insertMap.put("buy", buy);
+            insertMap.put("follow", follow);
+            insertMap.put("cate", cate);
+            insertMap.put("brand", brand);
+
+            if(null != user){
+                insertMap.put("age", user.get("age"));
+                insertMap.put("sex", user.get("sex"));
+                insertMap.put("user_level", user.get("user_level"));
+                insertMap.put("reg_date", user.get("reg_date"));
+            }
+            else {
+                insertMap.put("age", 0);
+                insertMap.put("sex", 2);
+                insertMap.put("user_level", 0);
+                insertMap.put("reg_date", null);
+            }
+
+            if(null != product){
+                insertMap.put("attr1", product.get("attr1"));
+                insertMap.put("attr2", product.get("attr2"));
+                insertMap.put("attr3", product.get("attr3"));
+            }
+            else {
+                insertMap.put("attr1", 0);
+                insertMap.put("attr2", 0);
+                insertMap.put("attr3", 0);
+            }
+
+            if(null != comment){
+                insertMap.put("comment_num", comment.get("comment_num"));
+                insertMap.put("has_bad_comment", comment.get("has_bad_comment"));
+                insertMap.put("bad_comment_rate", comment.get("bad_comment_rate"));
+                insertMap.put("last_comment_date", comment.get("last_date"));
+            }
+            else {
+                insertMap.put("comment_num", 0);
+                insertMap.put("has_bad_comment", 0);
+                insertMap.put("bad_comment_rate", 0.0);
+                insertMap.put("last_comment_date", null);
+            }
+
+            insertList.add(insertMap);
         }
 
         log.info(userId + ": " + insertList.size());
-        DBOperation.insert(conn, "user_action_1", insertList);
+        DBOperation.insert(conn, "user_product_horizon", insertList);
 	}
 }
 
