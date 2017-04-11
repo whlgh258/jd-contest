@@ -18,13 +18,13 @@ public class CreateHorizonTable {
     public static void main(String[] args) {
         LinkedHashMap<String, String> fieldsMap = new LinkedHashMap<>();
 
-        fieldsMap.put("id", "int");
+        fieldsMap.put("id", "int not null auto_increment");
         fieldsMap.put("user_id", "int default 0");
         fieldsMap.put("sku_id", "int default 0");
         fieldsMap.put("age", "int default 0");
         fieldsMap.put("sex", "int default 0");
         fieldsMap.put("user_level", "int default 0");
-        fieldsMap.put("reg_date", "int default 0");
+        fieldsMap.put("reg_date", "date");
         fieldsMap.put("attr1", "int default 0");
         fieldsMap.put("attr2", "int default 0");
         fieldsMap.put("attr3", "int default 0");

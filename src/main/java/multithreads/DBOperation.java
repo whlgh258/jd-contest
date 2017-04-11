@@ -723,7 +723,7 @@ public class DBOperation
 
 				if ( object == null )
 				{
-					String string = "";
+					String string = null;
 					pstmt.setString( i, string );
 				}
 				else if ( object instanceof Integer )

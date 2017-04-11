@@ -80,10 +80,10 @@ public class UserConsumer implements Runnable
 	}
 	
 	private void handle(int userId) {
-        List<Map<String, Object>> insertList = new ArrayList<>();
         for(int productId : productIds){
             Map<String, Object> insertMap = new HashMap<>();
             long click = 0, detail = 0, cart = 0, cartDelete = 0, buy = 0, follow = 0, cate = 0, brand = 0;
+            boolean hasAction = false;
             for(String date : dates){
                 click = detail = cart = cartDelete = buy = follow = cate = brand = 0;
                 for(int type = 1; type <= 6; type++) {
@@ -120,8 +120,12 @@ public class UserConsumer implements Runnable
                 if(0 == click && 0 == detail && 0 == cart && 0 == cartDelete && 0 == buy && 0 == follow){
                     continue;
                 }
+                else {
+                    hasAction = true;
+                }
 
                 log.info(date + ": user_id: " + userId + ", product_id: " + productId + ", click: " + click + ", detail: " + detail + ", cart: " + cart + ", cartDelete: " + cartDelete + ", buy: " + buy + ", follow: " + follow);
+
                 LocalDate startDate = LocalDate.parse(date);
                 LocalDate endDate = LocalDate.parse("2016-04-16");
                 int diff = endDate.getDayOfYear() - startDate.getDayOfYear();
@@ -151,19 +155,17 @@ public class UserConsumer implements Runnable
                 }
             }
 
+            if(!hasAction){
+                continue;
+            }
+
             Map<String, Object> user = userInfo.get(userId);
             Map<String, Object> product = productInfo.get(productId);
             Map<String, Object> comment = commentInfo.get(productId);
 
             insertMap.put("user_id", userId);
             insertMap.put("sku_id", productId);
-            insertMap.put("click", click);
 //            insertMap.put("model_id", modelIds);
-            insertMap.put("detail", detail);
-            insertMap.put("cart", cart);
-            insertMap.put("cart_delete", cartDelete);
-            insertMap.put("buy", buy);
-            insertMap.put("follow", follow);
             insertMap.put("cate", cate);
             insertMap.put("brand", brand);
 
@@ -204,11 +206,8 @@ public class UserConsumer implements Runnable
                 insertMap.put("last_comment_date", null);
             }
 
-            insertList.add(insertMap);
+            DBOperation.insert(conn, "user_product_horizon", insertMap);
         }
-
-        log.info(userId + ": " + insertList.size());
-        DBOperation.insert(conn, "user_product_horizon", insertList);
 	}
 }
 

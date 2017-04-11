@@ -38,16 +38,18 @@ public class MultiThreadsControllerHorizon
 	public void control()
 	{
 		Connection conn = DBConnection.getConnection();
-        Connection[] connections = new Connection[3];
+        int threadNum = 8;
+        int queueSize = 4;
+        Connection[] connections = new Connection[threadNum];
 
 		try
 		{
 			long CurrentTime = System.currentTimeMillis();
 
-			BlockingQueue<Integer> userQueue = new ArrayBlockingQueue<>(2);
+			BlockingQueue<Integer> userQueue = new ArrayBlockingQueue<>(queueSize);
 
             List<Integer> productIds = new ArrayList<>();
-            String productSql = "select distinct sku_id from action order by sku_id";
+            String productSql = "select distinct sku_id from action_1 order by sku_id";
             List<Map<String, Object>> productResult = DBOperation.queryBySql(productSql);
             for(Map<String, Object> productRow : productResult){
                 productIds.add((int) productRow.get("sku_id"));
@@ -79,7 +81,7 @@ public class MultiThreadsControllerHorizon
             }
 
             List<String> dates = new ArrayList<>();
-            String dateSql = "select date(min(time)) as min,date(max(time)) as max from action";
+            String dateSql = "select date(min(time)) as min,date(max(time)) as max from action_1";
             List<Map<String, Object>> dateResult = DBOperation.queryBySql(conn, dateSql);
             if(dateResult.size() > 0){
                 Map<String, Object> dateRow = dateResult.get(0);
@@ -95,7 +97,7 @@ public class MultiThreadsControllerHorizon
             }
 
             Map<String, String> detailMap = new HashMap<>();
-            String detailSql = "select user_id,sku_id,date(time) as date,type,count(1) as count ,max(cate) as cate,max(brand) as brand from action group by user_id,sku_id,date(time),type having count>0";
+            String detailSql = "select user_id,sku_id,date(time) as date,type,count(1) as count,max(cate) as cate,max(brand) as brand from action_1 group by user_id,sku_id,date(time),type having count>0";
             List<Map<String, Object>> detailResult = DBOperation.queryBySql(conn, detailSql);
             for(Map<String, Object> detailRow : detailResult){
                 int userId = (int) detailRow.get("user_id");
@@ -119,7 +121,7 @@ public class MultiThreadsControllerHorizon
             log.info("detail size: " + detailMap.size());
 
             List<Integer> userIds = new ArrayList<>();
-            String userSql = "select distinct user_id from action order by user_id";
+            String userSql = "select distinct user_id from action_1 order by user_id";
             List<Map<String, Object>> userResult = DBOperation.queryBySql(conn, userSql);
             log.info("uers size: " + userResult.size());
             for(Map<String, Object> userRow : userResult) {
@@ -136,7 +138,7 @@ public class MultiThreadsControllerHorizon
             }
 			
 			//start consumer
-			Thread [] threads = new Thread[3];
+			Thread [] threads = new Thread[threadNum];
 			for( int i = 0; i < threads.length; i++ )
 			{
 				threads[i] = new Thread(new UserConsumer(userQueue, productIds, userInfo, productInfo, commentInfo, dates, detailMap, connections[i]));

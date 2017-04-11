@@ -35,13 +35,13 @@ public class MultiThreadsControllerNew
 	{
         log.info(Runtime.getRuntime().availableProcessors());
 		Connection conn = DBConnection.getConnection();
-        Connection[] connections = new Connection[3];
+        Connection[] connections = new Connection[7];
 
 		try
 		{
 			long CurrentTime = System.currentTimeMillis();
 
-			BlockingQueue<Integer> userQueue = new ArrayBlockingQueue<>(2);
+			BlockingQueue<Integer> userQueue = new ArrayBlockingQueue<>(3);
 
             List<Integer> productIds = new ArrayList<>();
             String productSql = "select distinct sku_id from action_1 order by sku_id";
@@ -133,7 +133,7 @@ public class MultiThreadsControllerNew
             }
 			
 			//start consumer
-			Thread [] threads = new Thread[3];
+			Thread [] threads = new Thread[7];
 			for( int i = 0; i < threads.length; i++ )
 			{
 				threads[i] = new Thread(new UserConsumer(userQueue, productIds, userInfo, productInfo, commentInfo, dates, detailMap, connections[i]));
