@@ -28,9 +28,9 @@ import org.apache.log4j.Logger;
  * @version 0.1
  * 2012-11-27
  */
-public class MultiThreadsControllerNew
+public class MultiThreadsControllerHorizon
 {
-	private static final Logger log = Logger.getLogger( MultiThreadsControllerNew.class );
+	private static final Logger log = Logger.getLogger( MultiThreadsControllerHorizon.class );
 	
 	/**
 	 * contoller function
@@ -38,13 +38,13 @@ public class MultiThreadsControllerNew
 	public void control()
 	{
 		Connection conn = DBConnection.getConnection();
-        Connection[] connections = new Connection[20];
+        Connection[] connections = new Connection[3];
 
 		try
 		{
 			long CurrentTime = System.currentTimeMillis();
 
-			BlockingQueue<Integer> userQueue = new ArrayBlockingQueue<>(10);
+			BlockingQueue<Integer> userQueue = new ArrayBlockingQueue<>(2);
 
             List<Integer> productIds = new ArrayList<>();
             String productSql = "select distinct sku_id from action order by sku_id";
@@ -136,7 +136,7 @@ public class MultiThreadsControllerNew
             }
 			
 			//start consumer
-			Thread [] threads = new Thread[20];
+			Thread [] threads = new Thread[3];
 			for( int i = 0; i < threads.length; i++ )
 			{
 				threads[i] = new Thread(new UserConsumer(userQueue, productIds, userInfo, productInfo, commentInfo, dates, detailMap, connections[i]));
@@ -167,7 +167,7 @@ public class MultiThreadsControllerNew
 	
 	public static void main( String[] args )
 	{
-		MultiThreadsControllerNew controller = new MultiThreadsControllerNew();
+		MultiThreadsControllerHorizon controller = new MultiThreadsControllerHorizon();
 		controller.control();
 	}
 }
