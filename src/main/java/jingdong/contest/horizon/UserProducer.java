@@ -37,7 +37,7 @@ public class UserProducer implements Runnable
 		try
 		{
 			produceUser();
-            userQueue.add(Integer.MAX_VALUE);
+            userQueue.put(Integer.MAX_VALUE);
 		}
 		catch ( Exception e )
 		{

@@ -97,7 +97,7 @@ public class MultiThreadsControllerHorizon
             }
 
             Map<String, String> detailMap = new HashMap<>();
-            String detailSql = "select user_id,sku_id,date(time) as date,type,count(1) as count,max(cate) as cate,max(brand) as brand from action_1 group by user_id,sku_id,date(time),type having count>0";
+            String detailSql = "select user_id,sku_id,date(time) as date,type,count(1) as count,max(cate) as cate,max(brand) as brand,group_concat(model_id) as model_id from action_1 group by user_id,sku_id,date(time),type having count>0";
             List<Map<String, Object>> detailResult = DBOperation.queryBySql(conn, detailSql);
             for(Map<String, Object> detailRow : detailResult){
                 int userId = (int) detailRow.get("user_id");
@@ -107,9 +107,10 @@ public class MultiThreadsControllerHorizon
                 long count = (long) detailRow.get("count");
                 int cate = (int) detailRow.get("cate");
                 int brand = (int) detailRow.get("brand");
+                String modelId = (String) detailRow.get("model_id");
 
                 String key = userId + "_" + productId + "_" + date + "_" + type;
-                String value = count + "_" + cate + "_" + brand;
+                String value = count + "_" + cate + "_" + brand + "_" + modelId;
                 detailMap.put(key, value);
             }
 

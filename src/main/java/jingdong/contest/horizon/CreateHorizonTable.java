@@ -3,6 +3,7 @@ package jingdong.contest.horizon;
 import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import multithreads.DBConnection;
@@ -48,7 +49,16 @@ public class CreateHorizonTable {
             fieldsMap.put("follow_" + diff, "int default 0");
         }
 
-        DBOperation.createtable("user_product_horizon", fieldsMap, "primary key(id)", "");
+        String sql = "select distinct model_id from action_1 order by model_id";
+        List<Map<String, Object>> result = DBOperation.queryBySql(sql);
+        for(Map<String, Object> row : result){
+            int modelId = (int) row.get("model_id");
+            if(modelId > 0){
+                fieldsMap.put("model_" + modelId, "int default 0");
+            }
+        }
+
+        DBOperation.createtable("user_action_horizon", fieldsMap, "primary key(id)", "");
     }
 }
 

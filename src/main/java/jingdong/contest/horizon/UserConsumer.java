@@ -2,10 +2,7 @@ package jingdong.contest.horizon;
 
 import java.sql.Connection;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 import multithreads.DBOperation;
@@ -86,6 +83,7 @@ public class UserConsumer implements Runnable
             boolean hasAction = false;
             for(String date : dates){
                 click = detail = cart = cartDelete = buy = follow = cate = brand = 0;
+                String modelId = "";
                 for(int type = 1; type <= 6; type++) {
                     String key = userId + "_" + productId + "_" + date + "_" + type;
                     String value = detailMap.get(key);
@@ -95,6 +93,7 @@ public class UserConsumer implements Runnable
                         int count = Integer.parseInt(parts[0]);
                         cate = Integer.parseInt(parts[1]);
                         brand = Integer.parseInt(parts[2]);
+                        modelId = parts[3];
 
                         if(1 == type) {
                             detail = count;
@@ -132,6 +131,21 @@ public class UserConsumer implements Runnable
 
                 if(click > 0){
                     insertMap.put("click_" + diff, click);
+                    String[] parts = modelId.split(",");
+                    LinkedHashMap<String, Integer> map = new LinkedHashMap();
+                    for(String part : parts){
+                        if(!"0".equals(part)){
+                            if(!map.containsKey(part)){
+                                map.put(part, 0);
+                            }
+
+                            map.put(part, map.get(part) + 1);
+                        }
+                    }
+
+                    for(Map.Entry<String, Integer> entry : map.entrySet()){
+                        insertMap.put("model_" + entry.getKey(), entry.getValue());
+                    }
                 }
 
                 if(detail > 0){
@@ -151,7 +165,7 @@ public class UserConsumer implements Runnable
                 }
 
                 if(follow > 0){
-                    insertMap.put("follow_" + diff, buy);
+                    insertMap.put("follow_" + diff, follow);
                 }
             }
 
@@ -206,7 +220,7 @@ public class UserConsumer implements Runnable
                 insertMap.put("last_comment_date", null);
             }
 
-            DBOperation.insert(conn, "user_product_horizon", insertMap);
+            DBOperation.insert(conn, "user_action_horizon", insertMap);
         }
 	}
 }
