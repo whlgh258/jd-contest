@@ -18,7 +18,7 @@ public class Validation {
     public static void main(String[] args) {
         int totalClick = 0, totalDetail = 0, totalCart = 0, totalCartDelete = 0, totalBuy = 0, totalFollow = 0;
         Connection conn = DBConnection.getConnection();
-        /*for(int i = 1; i <= 75; i++){
+        for(int i = 1; i <= 75; i++){
             String sql = "select sum(click_" + i + ") as click from user_action_horizon";
             log.info(sql);
             List<Map<String, Object>> result = DBOperation.queryBySql(conn, sql);
@@ -66,7 +66,7 @@ public class Validation {
                 BigDecimal bd = (BigDecimal) result.get(0).get("buy");
                 totalBuy += bd.longValue();
             }
-        }*/
+        }
 
         for(int i = 1; i <= 75; i++){
             String sql = "select sum(follow_" + i + ") as follow from user_action_horizon";
@@ -79,11 +79,11 @@ public class Validation {
             }
         }
 
-//        System.out.println(totalClick);
-//        System.out.println(totalDetail);
-//        System.out.println(totalCart);
-//        System.out.println(totalCartDelete);
-//        System.out.println(totalBuy);
+        System.out.println(totalClick);
+        System.out.println(totalDetail);
+        System.out.println(totalCart);
+        System.out.println(totalCartDelete);
+        System.out.println(totalBuy);
         System.out.println(totalFollow);
 
         DBConnection.close(conn);

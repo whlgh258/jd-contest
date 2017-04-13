@@ -38,8 +38,8 @@ public class MultiThreadsControllerHorizon
 	public void control()
 	{
 		Connection conn = DBConnection.getConnection();
-        int threadNum = 10;
-        int queueSize = 5;
+        int threadNum = 12;
+        int queueSize = 6;
         Connection[] connections = new Connection[threadNum];
 
 		try

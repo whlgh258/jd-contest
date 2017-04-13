@@ -79,6 +79,7 @@ public class UserConsumer implements Runnable
 	private void handle(int userId) {
         for(int productId : productIds){
             Map<String, Object> insertMap = new HashMap<>();
+            LinkedHashMap<String, Integer> map = new LinkedHashMap();
             long click = 0, detail = 0, cart = 0, cartDelete = 0, buy = 0, follow = 0, cate = 0, brand = 0;
             boolean hasAction = false;
             for(String date : dates){
@@ -132,7 +133,6 @@ public class UserConsumer implements Runnable
                 if(click > 0){
                     insertMap.put("click_" + diff, click);
                     String[] parts = modelId.split(",");
-                    LinkedHashMap<String, Integer> map = new LinkedHashMap();
                     for(String part : parts){
                         if(!"0".equals(part)){
                             if(!map.containsKey(part)){
