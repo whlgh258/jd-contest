@@ -1227,6 +1227,7 @@ public class DBOperation
 				pstmt = conn.prepareStatement( sql );
 
 				pstmt.executeUpdate();
+//				pstmt.execute();
 			}
 			catch ( Exception e )
 			{
