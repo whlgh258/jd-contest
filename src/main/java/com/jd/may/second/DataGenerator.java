@@ -21,13 +21,24 @@ public class DataGenerator {
     private static final String path = "/home/wanghl/jd_contest/0501/";
 
     public static void main(String[] args) throws Exception {
+        int window = 2;
+        int slide = 2;
         String startDate = "2016-04-15";
-        String endDate = "2016-04-15";
-//        LocalDate startTime = LocalDate.parse(startDate);
-//        LocalDate endTime = LocalDate.parse(endDate);
-        List<String> dates = getDates(startDate, endDate);
-//        int gap = 0;
-//        for(LocalDate start = startTime; start.isBefore(endTime.plusDays(1L)); start = start.plusDays(1L)){}
+        String endDate = "2016-02-01";
+        LocalDate startTime = LocalDate.parse(startDate);
+        LocalDate endTime = LocalDate.parse(endDate);
+        for(LocalDate start = startTime; start.isBefore(endTime.plusDays(1L)); start = start.plusDays(window)){
+            LocalDate localPredictDate = start;
+            LocalDate localTestLabelDate = start;
+            LocalDate localTestTrainDate = start.minusDays(slide);
+//            LocalDate localValidLabelDate = ;
+//            LocalDate lcoalValidTrainDate = ;
+//            LocalDate localTrainLabelDate = ;
+//            LocalDate localTrainTrainDate = ;
+
+
+        }
+        /*List<String> dates = getDates(startDate, endDate);
         for(String date : dates){
             LocalDate ld = LocalDate.parse(date);
             String trainDate = ld.minusDays(4L).toString();
@@ -50,7 +61,7 @@ public class DataGenerator {
 
             int[] modelIds = new int[]{11,217,27,216,17,210,14,211,218,26,28,24,220,21,25,15,221,222,29,23,19,16,223,219,116,224,22,31,125,13,111,18,33,119,333,112,322,311,318,110,319,34,12,124,120,121,325,331,329,334,346,328,32,320,341,348,340,323,337,343,345,336,312,321,335,347,344,342,316,315,36,115,114,113,122,317,212,313,35,314,39,338,225,310,324,332,327,37,38,330};
 //            String[] header = new String[]{"user_id", "sku_id", "age", "sex", "user_level", "attr1", "attr2", "attr3", "cate", "brand", "comment_num", "has_bad_comment", "bad_comment_rate", "click", "detail", "cart", "cart_delete", "buy", "follow", "target"};
-            /*List<String> attributes = new ArrayList<>();
+            *//*List<String> attributes = new ArrayList<>();
             attributes.add("user_id");
             attributes.add("sku_id");
             attributes.add("age");
@@ -88,7 +99,7 @@ public class DataGenerator {
             attributes.add("product_popular");
             attributes.add("brand_popular");
 
-            attributes.add("target");*/
+            attributes.add("target");*//*
 
             Map<String, Integer> attributes = new LinkedHashMap<>();
             int i = 0;
@@ -307,7 +318,7 @@ public class DataGenerator {
             finalWriter.writeNext(header.toArray(new String[0]));
             finalWriter.writeAll(finalLines);
             finalWriter.close();
-        }
+        }*/
     }
 
     private static List<String> getDates(String startDate, String endDate){
