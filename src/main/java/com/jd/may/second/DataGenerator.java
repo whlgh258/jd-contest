@@ -7,6 +7,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,15 +20,73 @@ public class DataGenerator {
     private static final Logger log = Logger.getLogger(DataGenerator.class);
 
     private static final String path = "/home/wanghl/jd_contest/0501/";
+    private static final int[] windows = new int[]{1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70};
+    private static final LocalDate last = LocalDate.parse("2016-04-15");
+    private static final LocalDate first = LocalDate.parse("2016-02-01");
 
     public static void main(String[] args) throws Exception {
-        int window = 2;
-        int slide = 2;
+        int slide = 5;
+        for(int window : windows){
+            if(window < 5){
+                slide = window;
+            }
+
+//            File dir = new File(path + window);
+//            if(!dir.exists()){
+//                dir.mkdirs();
+//            }
+
+            LocalDate predictEndDate = last;
+            LocalDate predictStartDate = predictEndDate.minusDays(window - 1);
+            LocalDate testLabelEndDate = last;
+            LocalDate testLabelStartDate = testLabelEndDate.minusDays(slide - 1);
+            LocalDate testEndDate = testLabelEndDate.minusDays(slide);
+            LocalDate testStartDate = testEndDate.minusDays(window - 1);
+            LocalDate validLabelEndDate = testLabelEndDate.minusDays(slide);
+            LocalDate validLabelStartDate = validLabelEndDate.minusDays(slide - 1);
+            LocalDate validEndDate = testEndDate.minusDays(slide);
+            LocalDate validStartDate = validEndDate.minusDays(window - 1);
+            if(validStartDate.isBefore(first)){
+                validStartDate = first;
+            }
+
+            String predictStart = predictStartDate.toString();
+            String predictEnd = predictEndDate.toString();
+            String testLabelEnd = testLabelEndDate.toString();
+            String testLabelStart = testLabelStartDate.toString();
+            String testEnd = testEndDate.toString();
+            String testStart = testStartDate.toString();
+            String validLabelEnd = validLabelEndDate.toString();
+            String validLabelStart = validLabelStartDate.toString();
+            String validEnd = validEndDate.toString();
+            String validStart = validStartDate.toString();
+
+
+            log.info("predict: " + predictStart + " - " + predictEnd);
+            log.info("test   : " + testStart + " - " + testEnd + " *** " + testLabelStart + " - " + testLabelEnd);
+            log.info("valid  : " + validStart + " - " + validEnd + " *** " + validLabelStart + " - " + validLabelEnd);
+
+
+            for(LocalDate date = validLabelEndDate; date.minusDays((window - 1) + 2 * slide).isAfter(first.minusDays(1)); date = date.minusDays(slide)){
+                LocalDate trainLabelEndDate = date.minusDays(slide);
+                LocalDate trainLabelStartDate = trainLabelEndDate.minusDays(slide - 1);
+                LocalDate trainEndDate = trainLabelEndDate.minusDays(slide);
+                LocalDate trainStartDate = trainEndDate.minusDays(window - 1);
+
+                String trainLabelEnd = trainLabelEndDate.toString();
+                String trainLabelStart = trainLabelStartDate.toString();
+                String trainEnd = trainEndDate.toString();
+                String trainStart = trainStartDate.toString();
+
+                log.info("train  : " + trainStart + " - " + trainEnd + " *** " + trainLabelStart + " - " + trainLabelEnd);
+            }
+
+        }
         String startDate = "2016-04-15";
         String endDate = "2016-02-01";
         LocalDate startTime = LocalDate.parse(startDate);
         LocalDate endTime = LocalDate.parse(endDate);
-        for(LocalDate start = startTime; start.isBefore(endTime.plusDays(1L)); start = start.plusDays(window)){
+        /*for(LocalDate start = startTime; start.isBefore(endTime.plusDays(1L)); start = start.plusDays(window)){
             LocalDate localPredictDate = start;
             LocalDate localTestLabelDate = start;
             LocalDate localTestTrainDate = start.minusDays(slide);
@@ -38,7 +97,7 @@ public class DataGenerator {
 
 
         }
-        /*List<String> dates = getDates(startDate, endDate);
+        List<String> dates = getDates(startDate, endDate);
         for(String date : dates){
             LocalDate ld = LocalDate.parse(date);
             String trainDate = ld.minusDays(4L).toString();
