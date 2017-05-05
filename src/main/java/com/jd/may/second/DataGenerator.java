@@ -20,7 +20,7 @@ public class DataGenerator {
     private static final Logger log = Logger.getLogger(DataGenerator.class);
 
     private static final String path = "/home/wanghl/jd_contest/0501/";
-    private static final int[] windows = new int[]{1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70};
+    private static final int[] windows = new int[]{1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65};
     private static final LocalDate last = LocalDate.parse("2016-04-15");
     private static final LocalDate first = LocalDate.parse("2016-02-01");
 
@@ -30,12 +30,50 @@ public class DataGenerator {
             if(window < 5){
                 slide = window;
             }
+            else {
+                slide = 5;
+            }
 
 //            File dir = new File(path + window);
 //            if(!dir.exists()){
 //                dir.mkdirs();
 //            }
 
+            /**
+             * https://tianchi.aliyun.com/competition/new_articleDetail.html?spm=5176.8366600.0.0.uhCB1n&raceId=&postsId=99
+             * select user_id,round(log(count(if(click>0,1,null))+1),3) as click,round(log(count(if(detail>0,1,null))+1),3) as detail,round(log(count(if(cart>0,1,null))+1),3) as cart,round(log(count(if(cart_delete>0,1,null))+1),3) as cart_delete,round(log(count(if(buy>0,1,null))+1),3) as buy,round(log(count(if(follow>0,1,null))+1),3) as follow from user_action_1 group by user_id order by click desc limit 10;
+             * select user_id,round(log(sum(click)+1),3) as click,round(log(sum(detail)+1),3) as detail,round(log(sum(cart)+1),3) as cart,round(log(sum(cart_delete)+1),3) as cart_delete,round(log(sum(buy)+1),3) as buy,round(log(sum(follow)+1),3) as follow from user_action_1 group by user_id order by click desc limit 10;
+             * 一、特征
+             * 1、user
+             * 2、item
+             * 3、user-item：交互时间
+             * 二、维度
+             * 1、计数
+             * select user_id,count(if(click>0,1,null)) as click,count(if(detail>0,1,null)) as detail,count(if(cart>0,1,null)) as cart,count(if(cart_delete>0,1,null)) as cart_delete,count(if(buy>0,1,null)) as buy,count(if(follow>0,1,null)) as follow from user_action_1 where action_date>='' and action_date<='' group by user_id
+             * select sku_id,count(if(click>0,1,null)) as click,count(if(detail>0,1,null)) as detail,count(if(cart>0,1,null)) as cart,count(if(cart_delete>0,1,null)) as cart_delete,count(if(buy>0,1,null)) as buy,count(if(follow>0,1,null)) as follow from user_action_1 where action_date>='' and action_date<='' group by sku_id
+             * select user_id,sku_id,count(if(click>0,1,null)) as click,count(if(detail>0,1,null)) as detail,count(if(cart>0,1,null)) as cart,count(if(cart_delete>0,1,null)) as cart_delete,count(if(buy>0,1,null)) as buy,count(if(follow>0,1,null)) as follow from user_action_1 where action_date>='' and action_date<='' group by user_id,sku_id
+             * 2、求和
+             * select user_id,sum(click) as click,sum(detail) as detail,sum(cart) as cart,sum(cart_delete) as cart_delete,sum(buy) as buy,sum(follow) as follow from user_action_1 where action_date>='' and action_date<='' group by user_id
+             * select sku_id,sum(click) as click,sum(detail) as detail,sum(cart) as cart,sum(cart_delete) as cart_delete,sum(buy) as buy,sum(follow) as follow from user_action_1 where action_date>='' and action_date<='' group by sku_id
+             * select user_id,sku_id,sum(click) as click,sum(detail) as detail,sum(cart) as cart,sum(cart_delete) as cart_delete,sum(buy) as buy,sum(follow) as follow from user_action_1 where action_date>='' and action_date<='' group by user_id,sku_id
+             * 3、比值
+             * select user_id,count(if(buy>0,1,null))/count(if(click>0,1,null)) as buy_click_ratio,count(if(buy>0,1,null))/count(if(detail>0,1,null)) as buy_detail_ratio,count(if(buy>0,1,null))/count(if(cart>0,1,null)) as buy_cart_ratio,count(if(buy>0,1,null))/count(if(cart_delete,1,null)) as buy_cart_delete_ratio,count(if(buy>0,1,null))/count(if(follow,1,null)) as buy_follow_ratio from user_action_1 where action_date>='' and action_date<='' group by user_id
+             * select sku_id,count(if(buy>0,1,null))/count(if(click>0,1,null)) as buy_click_ratio,count(if(buy>0,1,null))/count(if(detail>0,1,null)) as buy_detail_ratio,count(if(buy>0,1,null))/count(if(cart>0,1,null)) as buy_cart_ratio,count(if(buy>0,1,null))/count(if(cart_delete,1,null)) as buy_cart_delete_ratio,count(if(buy>0,1,null))/count(if(follow,1,null)) as buy_follow_ratio from user_action_1 where action_date>='' and action_date<='' group by sku_id
+             * select user_id,sku_id,count(if(buy>0,1,null))/count(if(click>0,1,null)) as buy_click_ratio,count(if(buy>0,1,null))/count(if(detail>0,1,null)) as buy_detail_ratio,count(if(buy>0,1,null))/count(if(cart>0,1,null)) as buy_cart_ratio,count(if(buy>0,1,null))/count(if(cart_delete,1,null)) as buy_cart_delete_ratio,count(if(buy>0,1,null))/count(if(follow,1,null)) as buy_follow_ratio from user_action_1 where action_date>='' and action_date<='' group by user_id,sku_id
+             *
+             * select user_id,sum(buy)/sum(click) as buy_click_ratio,sum(buy)/sum(detail) as buy_detail_ratio,sum(buy)/sum(cart) as buy_cart_ratio,sum(buy)/sum(cart_delete) as buy_cart_delete_ratio,sum(buy)/sum(follow) as buy_follow_ratio from user_action_1 where action_date>='' and action_date<='' group by user_id
+             * select sku_id,sum(buy)/sum(click) as buy_click_ratio,sum(buy)/sum(detail) as buy_detail_ratio,sum(buy)/sum(cart) as buy_cart_ratio,sum(buy)/sum(cart_delete) as buy_cart_delete_ratio,sum(buy)/sum(follow) as buy_follow_ratio from user_action_1 where action_date>='' and action_date<='' group by sku_id
+             * select user_id,sku_id,sum(buy)/sum(click) as buy_click_ratio,sum(buy)/sum(detail) as buy_detail_ratio,sum(buy)/sum(cart) as buy_cart_ratio,sum(buy)/sum(cart_delete) as buy_cart_delete_ratio,sum(buy)/sum(follow) as buy_follow_ratio from user_action_1 where action_date>='' and action_date<='' group by user_id,sku_id
+             * 4、排名
+             * TreeMap<Double, String>
+             * 5、user：活跃度
+             * 6、item：商品热度、交互时间、交互人数
+             * 三、交叉
+             * 1、user × user-item
+             * 2、item × user-item
+             */
+
+            log.info("window = " + window + ", slide = " + slide);
             LocalDate predictEndDate = last;
             LocalDate predictStartDate = predictEndDate.minusDays(window - 1);
             LocalDate testLabelEndDate = last;
@@ -46,9 +84,6 @@ public class DataGenerator {
             LocalDate validLabelStartDate = validLabelEndDate.minusDays(slide - 1);
             LocalDate validEndDate = testEndDate.minusDays(slide);
             LocalDate validStartDate = validEndDate.minusDays(window - 1);
-            if(validStartDate.isBefore(first)){
-                validStartDate = first;
-            }
 
             String predictStart = predictStartDate.toString();
             String predictEnd = predictEndDate.toString();
@@ -79,6 +114,7 @@ public class DataGenerator {
                 String trainStart = trainStartDate.toString();
 
                 log.info("train  : " + trainStart + " - " + trainEnd + " *** " + trainLabelStart + " - " + trainLabelEnd);
+
             }
 
         }
