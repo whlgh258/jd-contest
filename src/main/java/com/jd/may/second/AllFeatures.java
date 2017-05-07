@@ -362,7 +362,7 @@ public class AllFeatures {
         Map<String, Double> userItemCartDelete = ItemBuyUsers.itemUserCount(userItemCartDeleteSql, "user_id");
         String userItemBuySql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from user_action_1 where buy>0 and action_date>='" + start + "' and action_date<='" + end + "' group by user_id";
         Map<String, Double> userItemBuy = ItemBuyUsers.itemUserCount(userItemBuySql, "user_id");
-        String userItemFollowSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from user_action_1 where click>0 and action_date>='" + start + "' and action_date<='" + end + "' group by user_id";
+        String userItemFollowSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from user_action_1 where follow>0 and action_date>='" + start + "' and action_date<='" + end + "' group by user_id";
         Map<String, Double> userItemFollow = ItemBuyUsers.itemUserCount(userItemFollowSql, "user_id");
         Map<String, Integer> userItemClickRank = Rank.rank(userItemClick);
         Map<String, Integer> userItemDetailRank = Rank.rank(userItemDetail);
@@ -381,7 +381,7 @@ public class AllFeatures {
         Map<String, Double> itemUserCartDelete = ItemBuyUsers.itemUserCount(itemUserCartDeleteSql, "sku_id");
         String itemUserBuySql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from user_action_1 where buy>0 and action_date>='" + start + "' and action_date<='" + end + "' group by sku_id";
         Map<String, Double> itemUserBuy = ItemBuyUsers.itemUserCount(itemUserBuySql, "sku_id");
-        String itemUserFollowSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from user_action_1 where click>0 and action_date>='" + start + "' and action_date<='" + end + "' group by sku_id";
+        String itemUserFollowSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from user_action_1 where follow>0 and action_date>='" + start + "' and action_date<='" + end + "' group by sku_id";
         Map<String, Double> itemUserFollow = ItemBuyUsers.itemUserCount(itemUserFollowSql, "sku_id");
         Map<String, Integer> itemUserClickRank = Rank.rank(itemUserClick);
         Map<String, Integer> itemUserDetailRank = Rank.rank(itemUserDetail);
@@ -390,15 +390,15 @@ public class AllFeatures {
         Map<String, Integer> itemUserBuyRank = Rank.rank(itemUserBuy);
         Map<String, Integer> itemUserFollowRank = Rank.rank(itemUserFollow);
 
-        Map<String, Integer> labelMap = new HashMap<>();
+        Map<String, Long> labelMap = new HashMap<>();
         if(!isPredict){
-            String labelSql = "select user_id,sku_id,count(1) as count from user_action_1 where buy>0 and action_date>='" + labelStart + "' and action_date<='" + labelEnd + "'";
+            String labelSql = "select user_id,sku_id,count(1) as count from user_action_1 where buy>0 and action_date>='" + labelStart + "' and action_date<='" + labelEnd + "' group by user_id,sku_id";
             log.info("label sql: " + labelSql);
             List<Map<String, Object>> labelResult = DBOperation.queryBySql(labelSql);
             for(Map<String, Object> row : labelResult){
                 String userId = String.valueOf(row.get("user_id"));
                 String skuId = String.valueOf(row.get("sku_id"));
-                int count = (int) row.get("count");
+                long count = (long) row.get("count");
 
                 labelMap.put(userId + "_" + skuId, count);
             }
@@ -601,7 +601,7 @@ public class AllFeatures {
             features[279] = String.valueOf(itemUserFollowRank.get(skuId));
 
             if(!isPredict){
-                Integer count = labelMap.get(userId + "_" + skuId);
+                Long count = labelMap.get(userId + "_" + skuId);
                 if(null == count){
                     features[280] = String.valueOf(1);
                     ++negative;
@@ -627,20 +627,21 @@ public class AllFeatures {
     }
 
     private static void setFeature(String[] features, Map<String, Double> map, int index, boolean isRatio){
-        if(isRatio){
-            features[index + 1] = String.valueOf(map.get("click"));
-            features[index + 2] = String.valueOf(map.get("detail"));
-            features[index + 3] = String.valueOf(map.get("cart"));
-            features[index + 4] = String.valueOf(map.get("cartDelete"));
-            features[index + 5] = String.valueOf(map.get("follow"));
+        features[index + 1] = String.valueOf(null == map.get("click") ? 0 : map.get("click"));
+        features[index + 2] = String.valueOf(null == map.get("detail") ? 0 : map.get("detail"));
+        features[index + 3] = String.valueOf(null == map.get("cart") ? 0 : map.get("cart"));
+        features[index + 4] = String.valueOf(null == map.get("cartDelete") ? 0 : map.get("cartDelete"));
+        features[index + 5] = String.valueOf(null == map.get("follow") ? 0 : map.get("follow"));
+        if(!isRatio){
+
         }
         else {
-            features[index + 1] = String.valueOf(map.get("click"));
-            features[index + 2] = String.valueOf(map.get("detail"));
-            features[index + 3] = String.valueOf(map.get("cart"));
-            features[index + 4] = String.valueOf(map.get("cartDelete"));
-            features[index + 5] = String.valueOf(map.get("buy"));
-            features[index + 6] = String.valueOf(map.get("follow"));
+            features[index + 1] = String.valueOf(null == map.get("click") ? 0 : map.get("click"));
+            features[index + 2] = String.valueOf(null == map.get("detail") ? 0 : map.get("detail"));
+            features[index + 3] = String.valueOf(null == map.get("cart") ? 0 : map.get("cart"));
+            features[index + 4] = String.valueOf(null == map.get("cartDelete") ? 0 : map.get("cartDelete"));
+            features[index + 5] = String.valueOf(null == map.get("buy") ? 0 : map.get("buy"));
+            features[index + 6] = String.valueOf(null == map.get("follow") ? 0 : map.get("follow"));
         }
     }
 }

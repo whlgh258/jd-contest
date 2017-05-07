@@ -15,7 +15,7 @@ public class ItemBuyDays {
     public static Map<String, Integer> itemBuyDays(String start, String end){
         Map<String, Integer> map = new HashMap<>();
         String sql = "select sku_id,group_concat(action_date) as date from user_action_1 where buy>0 and action_date>='" + start + "' and action_date<='" + end + "' group by sku_id";
-        log.info("sql: " + sql);
+        log.info("item buy days sql: " + sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(sql);
         log.info("size: " + result.size());
         for(Map<String, Object> row : result){
@@ -38,7 +38,7 @@ public class ItemBuyDays {
     public static Map<String, Integer> itemIsBuy(String start, String end){
         Map<String, Integer> map = new HashMap<>();
         String sql = "select distinct(sku_id) from user_action_1 where buy>0 and action_date>='" + start + "' and action_date<='" + end + "'";
-        log.info("sql: " + sql);
+        log.info("item is buy sql: " + sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(sql);
         log.info("size: " + result.size());
         for(Map<String, Object> row : result){
@@ -52,7 +52,7 @@ public class ItemBuyDays {
     public static Map<String, Integer> userIsBuy(String start, String end){
         Map<String, Integer> map = new HashMap<>();
         String sql = "select distinct(user_id) from user_action_1 where buy>0 and action_date>='" + start + "' and action_date<='" + end + "'";
-        log.info("sql: " + sql);
+        log.info("user is buy sql: " + sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(sql);
         log.info("size: " + result.size());
         for(Map<String, Object> row : result){

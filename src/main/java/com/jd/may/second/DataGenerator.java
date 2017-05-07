@@ -107,7 +107,6 @@ public class DataGenerator {
 
             List<String[]> lines = AllFeatures.features(testStart, testEnd, testLabelStart, testLabelEnd, false);
 
-
             for(LocalDate date = validLabelEndDate; date.minusDays((window - 1) + 2 * slide).isAfter(first.minusDays(1)); date = date.minusDays(slide)){
                 LocalDate trainLabelEndDate = date.minusDays(slide);
                 LocalDate trainLabelStartDate = trainLabelEndDate.minusDays(slide - 1);
