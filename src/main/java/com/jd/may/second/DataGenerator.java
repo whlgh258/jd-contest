@@ -3,11 +3,9 @@ package com.jd.may.second;
 import au.com.bytecode.opencsv.CSVWriter;
 import com.alibaba.fastjson.JSONObject;
 import multithreads.DBOperation;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,8 +17,7 @@ import java.util.*;
 public class DataGenerator {
     private static final Logger log = Logger.getLogger(DataGenerator.class);
 
-    private static final String path = "/home/wanghl/jd_contest/0501/";
-    private static final int[] windows = new int[]{1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65};
+    private static final int[] windows = new int[]{5/*1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65*/};
     private static final LocalDate last = LocalDate.parse("2016-04-15");
     private static final LocalDate first = LocalDate.parse("2016-02-01");
 
@@ -65,12 +62,19 @@ public class DataGenerator {
              * select sku_id,sum(buy)/sum(click) as buy_click_ratio,sum(buy)/sum(detail) as buy_detail_ratio,sum(buy)/sum(cart) as buy_cart_ratio,sum(buy)/sum(cart_delete) as buy_cart_delete_ratio,sum(buy)/sum(follow) as buy_follow_ratio from user_action_1 where action_date>='' and action_date<='' group by sku_id
              * select user_id,sku_id,sum(buy)/sum(click) as buy_click_ratio,sum(buy)/sum(detail) as buy_detail_ratio,sum(buy)/sum(cart) as buy_cart_ratio,sum(buy)/sum(cart_delete) as buy_cart_delete_ratio,sum(buy)/sum(follow) as buy_follow_ratio from user_action_1 where action_date>='' and action_date<='' group by user_id,sku_id
              * 4、排名
-             * TreeMap<Double, String>
-             * 5、user：活跃度
-             * 6、item：商品热度、交互时间、交互人数
+             * Map<Double, String>、行为次数、购买人数、5种转化率、人均行为
+             * 5、user：活跃度，连续购买天数
+             * 6、item：商品热度、交互时间、交互人数，连续购买天数、是否重复购买
+             * 7、平均值
+             * 8、action/sum(action)
+             * 9、购买用户数/浏览用户数、购买用户数/点击用户数、、、
+             * 10、UI行为数*I转化率、UI行为数*U购买比例、UI行为/U行为、
              * 三、交叉
              * 1、user × user-item
              * 2、item × user-item
+             * 四、
+             * 交互区间内是否购买
+             * 交互区间内购买天数
              */
 
             log.info("window = " + window + ", slide = " + slide);
@@ -100,6 +104,8 @@ public class DataGenerator {
             log.info("predict: " + predictStart + " - " + predictEnd);
             log.info("test   : " + testStart + " - " + testEnd + " *** " + testLabelStart + " - " + testLabelEnd);
             log.info("valid  : " + validStart + " - " + validEnd + " *** " + validLabelStart + " - " + validLabelEnd);
+
+            List<String[]> lines = AllFeatures.features(testStart, testEnd, testLabelStart, testLabelEnd, false);
 
 
             for(LocalDate date = validLabelEndDate; date.minusDays((window - 1) + 2 * slide).isAfter(first.minusDays(1)); date = date.minusDays(slide)){
@@ -640,33 +646,6 @@ public class DataGenerator {
             list.add(buyFollowRatio);
 
             map.put(id, list);
-        }
-
-        return map;
-    }
-
-    private static Map<Integer, Double> productPopular(String date){
-        String sql = "select sku_id,sum(click)*0.01+sum(buy)*5+sum(detail)*0.1+sum(cart)*2+sum(cart_delete)+sum(follow)*3 as popular from user_action_1 where action_date in('" + date + "') group by sku_id";
-        log.info("product popular sql: " + sql);
-
-        return popular(sql, "sku_id");
-    }
-
-    private static Map<Integer, Double> brandPopular(String date){
-        String sql = "select brand,sum(click)*0.01+sum(buy)*5+sum(detail)*0.1+sum(cart)*2+sum(cart_delete)+sum(follow)*3 as popular from user_action_1 where action_date in('" + date + "') group by brand";
-        log.info("brand popular sql: " + sql);
-
-        return popular(sql, "brand");
-    }
-
-
-    private static Map<Integer, Double> popular(String sql, String key){
-        Map<Integer, Double> map = new HashMap<>();
-        List<Map<String, Object>> result = DBOperation.queryBySql(sql);
-        for(Map<String, Object> row : result){
-            int id = (int) row.get(key);
-            double popular = ((BigDecimal) row.get("popular")).doubleValue();
-            map.put(id, popular);
         }
 
         return map;
