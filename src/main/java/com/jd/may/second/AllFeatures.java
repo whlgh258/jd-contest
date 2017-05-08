@@ -17,7 +17,6 @@ public class AllFeatures {
     private static final String path = "/home/wanghl/jd_contest/0507/";
     private static final int[] modelIds = new int[]{11,217,27,216,17,210,14,211,218,26,28,24,220,21,25,15,221,222,29,23,19,16,223,219,116,224,22,31,125,13,111,18,33,119,333,112,322,311,318,110,319,34,12,124,120,121,325,331,329,334,346,328,32,320,341,348,340,323,337,343,345,336,312,321,335,347,344,342,316,315,36,115,114,113,122,317,212,313,35,314,39,338,225,310,324,332,327,37,38,330};
     private static final Map<String, Integer> attributes;
-    private static final Map<String, Map<String, Object>> userInfos;
 
     static {
         attributes = new LinkedHashMap<>();
@@ -35,12 +34,6 @@ public class AllFeatures {
         attributes.put("comment_num", i++);
         attributes.put("has_bad_comment", i++);
         attributes.put("bad_comment_rate", i++);
-        attributes.put("click", i++);
-        attributes.put("detail", i++);
-        attributes.put("cart", i++);
-        attributes.put("cart_delete", i++);
-        attributes.put("buy", i++);
-        attributes.put("follow", i++);
         for(int modelId : modelIds){
             attributes.put("model_" + modelId, i++);
         }
@@ -227,21 +220,22 @@ public class AllFeatures {
         attributes.put("item_distinct_user_buy_rank", i++);
         attributes.put("item_distinct_user_follow_rank", i++);
 
-
         attributes.put("target", i++);
-
-        userInfos = new HashMap<>();
-        String userInfoSql = "select user_id,sku_id,age,sex,user_level,attr1,attr2,attr3,cate,brand,comment_num,has_bad_comment,bad_comment_rate from user_action_1";
-        List<Map<String, Object>> result = DBOperation.queryBySql(userInfoSql);
-        log.info("user info size: " + result.size());
-        for(Map<String, Object> row : result){
-            String userId = String.valueOf(row.get("user_id"));
-            userInfos.put(userId, row);
-        }
+        log.info("feature size: " + attributes.size());
     }
 
     public static List<String[]> features(String start, String end, String labelStart, String labelEnd, boolean isPredict) throws Exception{
         List<String[]> lines = new ArrayList<>();
+
+        Map<String,Map<String, Object>> userInfos = new HashMap<>();
+        String userInfoSql = "select user_id,sku_id,max(age) as age,max(sex) as sex,max(user_level) as user_level,max(attr1) as attr1,max(attr2) as attr2,max(attr3) as attr3,max(cate) as cate,max(brand) as brand,max(comment_num) as comment_num,max(has_bad_comment) as has_bad_comment,max(bad_comment_rate) as bad_comment_rate from user_action_1 where action_date>='" + start + "' and action_date<='" + end + "' group by user_id,sku_id";
+        List<Map<String, Object>> result = DBOperation.queryBySql(userInfoSql);
+        log.info("user info size: " + result.size());
+        for(Map<String, Object> row : result){
+            String userId = String.valueOf(row.get("user_id"));
+            String skuId = String.valueOf(row.get("sku_id"));
+            userInfos.put(userId + "_" + skuId, row);
+        }
 
         String userCountSql = "select user_id,round(log(count(if(click>0,1,null))+1),3) as click,round(log(count(if(detail>0,1,null))+1),3) as detail,round(log(count(if(cart>0,1,null))+1),3) as cart,round(log(count(if(cart_delete>0,1,null))+1),3) as cart_delete,round(log(count(if(buy>0,1,null))+1),3) as buy,round(log(count(if(follow>0,1,null))+1),3) as follow from user_action_1 where action_date>='" + start + "' and action_date<='" + end + "' group by user_id";
         String userSumSql = "select user_id,round(log(sum(click)+1),3) as click,round(log(sum(detail>0)+1),3) as detail,round(log(sum(cart)+1),3) as cart,round(log(sum(cart_delete)+1),3) as cart_delete,round(log(sum(buy)+1),3) as buy,round(log(sum(follow)+1),3) as follow from user_action_1 where action_date>='" + start + "' and action_date<='" + end + "' group by user_id";
@@ -426,7 +420,7 @@ public class AllFeatures {
             String userId = String.valueOf(row.get("user_id"));
             String skuId = String.valueOf(row.get("sku_id"));
 
-            Map<String, Object> userInfo = userInfos.get(userId);
+            Map<String, Object> userInfo = userInfos.get(userId + "_" + skuId);
 
             int age = (int) userInfo.get("age");
             int sex = (int) userInfo.get("sex");
@@ -476,138 +470,138 @@ public class AllFeatures {
                 }
             }
 
-            setFeature(features, userCountFeature.get(userId), 109, false);
-            setFeature(features, userSumFeature.get(userId), 115, false);
-            setFeature(features, userAvgFeature.get(userId), 121, false);
-            setFeature(features, userBuyRatioFeature.get(userId), 127, false);
+            setFeature(features, userCountFeature.get(userId), 103, false);
+            setFeature(features, userSumFeature.get(userId), 109, false);
+            setFeature(features, userAvgFeature.get(userId), 115, false);
+            setFeature(features, userBuyRatioFeature.get(userId), 121, false);
 
-            setFeature(features, itemCountFeature.get(skuId), 132, false);
-            setFeature(features, itemSumFeature.get(skuId), 138, false);
-            setFeature(features, itemAvgFeature.get(skuId), 144, false);
-            setFeature(features, itemBuyRatioFeature.get(skuId), 150, false);
+            setFeature(features, itemCountFeature.get(skuId), 126, false);
+            setFeature(features, itemSumFeature.get(skuId), 132, false);
+            setFeature(features, itemAvgFeature.get(skuId), 138, false);
+            setFeature(features, itemBuyRatioFeature.get(skuId), 144, false);
 
-            setFeature(features, userItemCountFeature.get(userId + "_" + skuId), 155, false);
-            setFeature(features, userItemSumFeature.get(userId + "_" + skuId), 161, false);
-            setFeature(features, userItemAvgFeature.get(userId + "_" + skuId), 167, false);
-            setFeature(features, userItemBuyRatioFeature.get(userId + "_" + skuId), 173, false);
+            setFeature(features, userItemCountFeature.get(userId + "_" + skuId), 149, false);
+            setFeature(features, userItemSumFeature.get(userId + "_" + skuId), 155, false);
+            setFeature(features, userItemAvgFeature.get(userId + "_" + skuId), 161, false);
+            setFeature(features, userItemBuyRatioFeature.get(userId + "_" + skuId), 167, false);
 
-            features[178] = String.valueOf(userClickCountRank.get(userId));
-            features[179] = String.valueOf(userDetailCountRank.get(userId));
-            features[180] = String.valueOf(userCartCountRank.get(userId));
-            features[181] = String.valueOf(userCartDeleteCountRank.get(userId));
-            features[182] = String.valueOf(userBuyCountRank.get(userId));
-            features[183] = String.valueOf(userFollowCountRank.get(userId));
-            features[184] = String.valueOf(userClickSumRank.get(userId));
-            features[185] = String.valueOf(userDetailSumRank.get(userId));
-            features[186] = String.valueOf(userCartSumRank.get(userId));
-            features[187] = String.valueOf(userCartDeleteSumRank.get(userId));
-            features[188] = String.valueOf(userBuySumRank.get(userId));
-            features[189] = String.valueOf(userFollowSumRank.get(userId));
-            features[190] = String.valueOf(userClickAvgRank.get(userId));
-            features[191] = String.valueOf(userDetailAvgRank.get(userId));
-            features[192] = String.valueOf(userCartAvgRank.get(userId));
-            features[193] = String.valueOf(userCartDeleteAvgRank.get(userId));
-            features[194] = String.valueOf(userBuyAvgRank.get(userId));
-            features[195] = String.valueOf(userFollowAvgRank.get(userId));
-            features[196] = String.valueOf(userBuyClickRatioRank.get(userId));
-            features[197] = String.valueOf(userBuyDetailRatioRank.get(userId));
-            features[198] = String.valueOf(userBuyCartRatioRank.get(userId));
-            features[199] = String.valueOf(userBuyCartDeleteRatioRank.get(userId));
-            features[200] = String.valueOf(userBuyFollowRatioRank.get(userId));
-            features[201] = String.valueOf(itemClickCountRank.get(skuId));
-            features[202] = String.valueOf(itemDetailCountRank.get(skuId));
-            features[203] = String.valueOf(itemCartCountRank.get(skuId));
-            features[204] = String.valueOf(itemCartDeleteCountRank.get(skuId));
-            features[205] = String.valueOf(itemBuyCountRank.get(skuId));
-            features[206] = String.valueOf(itemFollowCountRank.get(skuId));
-            features[207] = String.valueOf(itemClickSumRank.get(skuId));
-            features[208] = String.valueOf(itemDetailSumRank.get(skuId));
-            features[209] = String.valueOf(itemCartSumRank.get(skuId));
-            features[210] = String.valueOf(itemCartDeleteSumRank.get(skuId));
-            features[211] = String.valueOf(itemBuySumRank.get(skuId));
-            features[212] = String.valueOf(itemFollowSumRank.get(skuId));
-            features[213] = String.valueOf(itemClickAvgRank.get(skuId));
-            features[214] = String.valueOf(itemDetailAvgRank.get(skuId));
-            features[215] = String.valueOf(itemCartAvgRank.get(skuId));
-            features[216] = String.valueOf(itemCartDeleteAvgRank.get(skuId));
-            features[217] = String.valueOf(itemBuyAvgRank.get(skuId));
-            features[218] = String.valueOf(itemFollowAvgRank.get(skuId));
-            features[219] = String.valueOf(itemBuyClickRatioRank.get(skuId));
-            features[220] = String.valueOf(itemBuyDetailRatioRank.get(skuId));
-            features[221] = String.valueOf(itemBuyCartRatioRank.get(skuId));
-            features[222] = String.valueOf(itemBuyCartDeleteRatioRank.get(skuId));
-            features[223] = String.valueOf(itemBuyFollowRatioRank.get(skuId));
-            features[224] = String.valueOf(userItemClickCountRank.get(userId + "_" + skuId));
-            features[225] = String.valueOf(userItemDetailCountRank.get(userId + "_" + skuId));
-            features[226] = String.valueOf(userItemCartCountRank.get(userId + "_" + skuId));
-            features[227] = String.valueOf(userItemCartDeleteCountRank.get(userId + "_" + skuId));
-            features[228] = String.valueOf(userItemBuyCountRank.get(userId + "_" + skuId));
-            features[229] = String.valueOf(userItemFollowCountRank.get(userId + "_" + skuId));
-            features[230] = String.valueOf(userItemClickSumRank.get(userId + "_" + skuId));
-            features[231] = String.valueOf(userItemDetailSumRank.get(userId + "_" + skuId));
-            features[232] = String.valueOf(userItemCartSumRank.get(userId + "_" + skuId));
-            features[233] = String.valueOf(userItemCartDeleteSumRank.get(userId + "_" + skuId));
-            features[234] = String.valueOf(userItemBuySumRank.get(userId + "_" + skuId));
-            features[235] = String.valueOf(userItemFollowSumRank.get(userId + "_" + skuId));
-            features[236] = String.valueOf(userItemClickAvgRank.get(userId + "_" + skuId));
-            features[237] = String.valueOf(userItemDetailAvgRank.get(userId + "_" + skuId));
-            features[238] = String.valueOf(userItemCartAvgRank.get(userId + "_" + skuId));
-            features[239] = String.valueOf(userItemCartDeleteAvgRank.get(userId + "_" + skuId));
-            features[240] = String.valueOf(userItemBuyAvgRank.get(userId + "_" + skuId));
-            features[241] = String.valueOf(userItemFollowAvgRank.get(userId + "_" + skuId));
-            features[242] = String.valueOf(userItemBuyClickRatioRank.get(userId + "_" + skuId));
-            features[243] = String.valueOf(userItemBuyDetailRatioRank.get(userId + "_" + skuId));
-            features[244] = String.valueOf(userItemBuyCartRatioRank.get(userId + "_" + skuId));
-            features[245] = String.valueOf(userItemBuyCartDeleteRatioRank.get(userId + "_" + skuId));
-            features[246] = String.valueOf(userItemBuyFollowRatioRank.get(userId + "_" + skuId));
+            features[172] = String.valueOf(null == userClickCountRank.get(userId) ? 0 : userClickCountRank.get(userId));
+            features[173] = String.valueOf(null == userDetailCountRank.get(userId) ? 0 : userDetailCountRank.get(userId));
+            features[174] = String.valueOf(null == userCartCountRank.get(userId) ? 0 : userCartCountRank.get(userId));
+            features[175] = String.valueOf(null == userCartDeleteCountRank.get(userId) ? 0 : userCartDeleteCountRank.get(userId));
+            features[176] = String.valueOf(null == userBuyCountRank.get(userId) ? 0 : userBuyCountRank.get(userId));
+            features[177] = String.valueOf(null == userFollowCountRank.get(userId) ? 0 : userFollowCountRank.get(userId));
+            features[178] = String.valueOf(null == userClickSumRank.get(userId) ? 0 : userClickSumRank.get(userId));
+            features[179] = String.valueOf(null == userDetailSumRank.get(userId) ? 0 : userDetailSumRank.get(userId));
+            features[180] = String.valueOf(null == userCartSumRank.get(userId) ? 0 : userCartSumRank.get(userId));
+            features[181] = String.valueOf(null == userCartDeleteSumRank.get(userId) ? 0 : userCartDeleteSumRank.get(userId));
+            features[182] = String.valueOf(null == userBuySumRank.get(userId) ? 0 : userBuySumRank.get(userId));
+            features[183] = String.valueOf(null == userFollowSumRank.get(userId) ? 0 : userFollowSumRank.get(userId));
+            features[184] = String.valueOf(null == userClickAvgRank.get(userId) ? 0 : userClickAvgRank.get(userId));
+            features[185] = String.valueOf(null == userDetailAvgRank.get(userId) ? 0 : userDetailAvgRank.get(userId));
+            features[186] = String.valueOf(null == userCartAvgRank.get(userId) ? 0 : userCartAvgRank.get(userId));
+            features[187] = String.valueOf(null == userCartDeleteAvgRank.get(userId) ? 0 : userCartDeleteAvgRank.get(userId));
+            features[188] = String.valueOf(null == userBuyAvgRank.get(userId) ? 0 : userBuyAvgRank.get(userId));
+            features[189] = String.valueOf(null == userFollowAvgRank.get(userId) ? 0 : userFollowAvgRank.get(userId));
+            features[190] = String.valueOf(null == userBuyClickRatioRank.get(userId) ? 0 : userBuyClickRatioRank.get(userId));
+            features[191] = String.valueOf(null == userBuyDetailRatioRank.get(userId) ? 0 : userBuyDetailRatioRank.get(userId));
+            features[192] = String.valueOf(null == userBuyCartRatioRank.get(userId) ? 0 : userBuyCartRatioRank.get(userId));
+            features[193] = String.valueOf(null == userBuyCartDeleteRatioRank.get(userId) ? 0 : userBuyCartDeleteRatioRank.get(userId));
+            features[194] = String.valueOf(null == userBuyFollowRatioRank.get(userId)? 0 : userBuyFollowRatioRank.get(userId));
+            features[195] = String.valueOf(null == itemClickCountRank.get(skuId) ? 0 : itemClickCountRank.get(skuId));
+            features[196] = String.valueOf(null == itemDetailCountRank.get(skuId) ? 0 : itemDetailCountRank.get(skuId));
+            features[197] = String.valueOf(null == itemCartCountRank.get(skuId) ? 0 : itemCartCountRank.get(skuId));
+            features[198] = String.valueOf(null == itemCartDeleteCountRank.get(skuId) ? 0 : itemCartDeleteCountRank.get(skuId));
+            features[199] = String.valueOf(null == itemBuyCountRank.get(skuId) ? 0 : itemBuyCountRank.get(skuId));
+            features[200] = String.valueOf(null == itemFollowCountRank.get(skuId) ? 0 : itemFollowCountRank.get(skuId));
+            features[201] = String.valueOf(null == itemClickSumRank.get(skuId) ? 0 : itemClickSumRank.get(skuId));
+            features[202] = String.valueOf(null == itemDetailSumRank.get(skuId) ? 0 : itemDetailSumRank.get(skuId));
+            features[203] = String.valueOf(null == itemCartSumRank.get(skuId) ? 0 : itemCartSumRank.get(skuId));
+            features[204] = String.valueOf(null == itemCartDeleteSumRank.get(skuId) ? 0 : itemCartDeleteSumRank.get(skuId));
+            features[205] = String.valueOf(null == itemBuySumRank.get(skuId) ? 0 : itemBuySumRank.get(skuId));
+            features[206] = String.valueOf(null == itemFollowSumRank.get(skuId) ? 0 : itemFollowSumRank.get(skuId));
+            features[207] = String.valueOf(null == itemClickAvgRank.get(skuId) ? 0 : itemClickAvgRank.get(skuId));
+            features[208] = String.valueOf(null == itemDetailAvgRank.get(skuId) ? 0 : itemDetailAvgRank.get(skuId));
+            features[209] = String.valueOf(null == itemCartAvgRank.get(skuId) ? 0 : itemCartAvgRank.get(skuId));
+            features[210] = String.valueOf(null == itemCartDeleteAvgRank.get(skuId) ? 0 : itemCartDeleteAvgRank.get(skuId));
+            features[211] = String.valueOf(null == itemBuyAvgRank.get(skuId) ? 0 : itemBuyAvgRank.get(skuId));
+            features[212] = String.valueOf(null == itemFollowAvgRank.get(skuId) ? 0 : itemFollowAvgRank.get(skuId));
+            features[213] = String.valueOf(null == itemBuyClickRatioRank.get(skuId) ? 0 : itemBuyClickRatioRank.get(skuId));
+            features[214] = String.valueOf(null == itemBuyDetailRatioRank.get(skuId) ? 0 : itemBuyDetailRatioRank.get(skuId));
+            features[215] = String.valueOf(null == itemBuyCartRatioRank.get(skuId) ? 0 : itemBuyCartRatioRank.get(skuId));
+            features[216] = String.valueOf(null == itemBuyCartDeleteRatioRank.get(skuId) ? 0 : itemBuyCartDeleteRatioRank.get(skuId));
+            features[217] = String.valueOf(null == itemBuyFollowRatioRank.get(skuId) ? 0 : itemBuyFollowRatioRank.get(skuId));
+            features[218] = String.valueOf(null == userItemClickCountRank.get(userId + "_" + skuId) ? 0 : userItemClickCountRank.get(userId + "_" + skuId));
+            features[219] = String.valueOf(null == userItemDetailCountRank.get(userId + "_" + skuId) ? 0 : userItemDetailCountRank.get(userId + "_" + skuId));
+            features[220] = String.valueOf(null == userItemCartCountRank.get(userId + "_" + skuId) ? 0 : userItemCartCountRank.get(userId + "_" + skuId));
+            features[221] = String.valueOf(null == userItemCartDeleteCountRank.get(userId + "_" + skuId) ? 0 : userItemCartDeleteCountRank.get(userId + "_" + skuId));
+            features[222] = String.valueOf(null == userItemBuyCountRank.get(userId + "_" + skuId) ? 0 : userItemBuyCountRank.get(userId + "_" + skuId));
+            features[223] = String.valueOf(null == userItemFollowCountRank.get(userId + "_" + skuId) ? 0 : userItemFollowCountRank.get(userId + "_" + skuId));
+            features[224] = String.valueOf(null == userItemClickSumRank.get(userId + "_" + skuId) ? 0 : userItemClickSumRank.get(userId + "_" + skuId));
+            features[225] = String.valueOf(null == userItemDetailSumRank.get(userId + "_" + skuId) ? 0 : userItemDetailSumRank.get(userId + "_" + skuId));
+            features[226] = String.valueOf(null == userItemCartSumRank.get(userId + "_" + skuId) ? 0 : userItemCartSumRank.get(userId + "_" + skuId));
+            features[227] = String.valueOf(null == userItemCartDeleteSumRank.get(userId + "_" + skuId) ? 0 : userItemCartDeleteSumRank.get(userId + "_" + skuId));
+            features[228] = String.valueOf(null == userItemBuySumRank.get(userId + "_" + skuId) ? 0 : userItemBuySumRank.get(userId + "_" + skuId));
+            features[229] = String.valueOf(null == userItemFollowSumRank.get(userId + "_" + skuId) ? 0 : userItemFollowSumRank.get(userId + "_" + skuId));
+            features[230] = String.valueOf(null == userItemClickAvgRank.get(userId + "_" + skuId) ? 0 : userItemClickAvgRank.get(userId + "_" + skuId));
+            features[231] = String.valueOf(null == userItemDetailAvgRank.get(userId + "_" + skuId) ? 0 : userItemDetailAvgRank.get(userId + "_" + skuId));
+            features[232] = String.valueOf(null == userItemCartAvgRank.get(userId + "_" + skuId) ? 0 : userItemCartAvgRank.get(userId + "_" + skuId));
+            features[233] = String.valueOf(null == userItemCartDeleteAvgRank.get(userId + "_" + skuId) ? 0 : userItemCartDeleteAvgRank.get(userId + "_" + skuId));
+            features[234] = String.valueOf(null == userItemBuyAvgRank.get(userId + "_" + skuId) ? 0 : userItemBuyAvgRank.get(userId + "_" + skuId));
+            features[235] = String.valueOf(null == userItemFollowAvgRank.get(userId + "_" + skuId) ? 0 : userItemFollowAvgRank.get(userId + "_" + skuId));
+            features[236] = String.valueOf(null == userItemBuyClickRatioRank.get(userId + "_" + skuId) ? 0 : userItemBuyClickRatioRank.get(userId + "_" + skuId));
+            features[237] = String.valueOf(null == userItemBuyDetailRatioRank.get(userId + "_" + skuId) ? 0 : userItemBuyDetailRatioRank.get(userId + "_" + skuId));
+            features[238] = String.valueOf(null == userItemBuyCartRatioRank.get(userId + "_" + skuId) ? 0 : userItemBuyCartRatioRank.get(userId + "_" + skuId));
+            features[239] = String.valueOf(null == userItemBuyCartDeleteRatioRank.get(userId + "_" + skuId) ? 0 : userItemBuyCartDeleteRatioRank.get(userId + "_" + skuId));
+            features[240] = String.valueOf(null == userItemBuyFollowRatioRank.get(userId + "_" + skuId) ? 0 : userItemBuyFollowRatioRank.get(userId + "_" + skuId));
 
-            features[247] = String.valueOf(userPopular.get(userId));
-            features[248] = String.valueOf(userPopularRank.get(userId));
-            features[249] = String.valueOf(itemPopular.get(skuId));
-            features[250] = String.valueOf(itemPopularRank.get(skuId));
-            features[251] = String.valueOf(itemActionUserCount.get(skuId));
-            features[252] = String.valueOf(itemActionUserRank.get(skuId));
+            features[241] = String.valueOf(null == userPopular.get(userId) ? 0 : userPopular.get(userId));
+            features[242] = String.valueOf(null == userPopularRank.get(userId) ? 0 : userPopularRank.get(userId));
+            features[243] = String.valueOf(null == itemPopular.get(skuId) ? 0 : itemPopular.get(skuId));
+            features[244] = String.valueOf(null == itemPopularRank.get(skuId) ? 0 : itemPopularRank.get(skuId));
+            features[245] = String.valueOf(null == itemActionUserCount.get(skuId) ? 0 : itemActionUserCount.get(skuId));
+            features[246] = String.valueOf(null == itemActionUserRank.get(skuId) ? 0 : itemActionUserRank.get(skuId));
 
-            features[253] = String.valueOf(userIsBuy.get(userId));
-            features[254] = String.valueOf(itemIsBuy.get(skuId));
-            features[255] = String.valueOf(itemBuyDate.get(skuId));
+            features[247] = String.valueOf(null == userIsBuy.get(userId) ? 0 : userIsBuy.get(userId));
+            features[248] = String.valueOf(null == itemIsBuy.get(skuId) ? 0 : itemIsBuy.get(skuId));
+            features[249] = String.valueOf(null == itemBuyDate.get(skuId) ? 0 : itemBuyDate.get(skuId));
 
-            features[256] = String.valueOf(userItemClick.get(userId));
-            features[257] = String.valueOf(userItemDetail.get(userId));
-            features[258] = String.valueOf(userItemCart.get(userId));
-            features[259] = String.valueOf(userItemCartDelete.get(userId));
-            features[260] = String.valueOf(userItemBuy.get(userId));
-            features[261] = String.valueOf(userItemFollow.get(userId));
+            features[250] = String.valueOf(null == userItemClick.get(userId) ? 0 : userItemClick.get(userId));
+            features[251] = String.valueOf(null == userItemDetail.get(userId) ? 0 : userItemDetail.get(userId));
+            features[252] = String.valueOf(null == userItemCart.get(userId) ? 0 : userItemCart.get(userId));
+            features[253] = String.valueOf(null == userItemCartDelete.get(userId) ? 0 : userItemCartDelete.get(userId));
+            features[254] = String.valueOf(null == userItemBuy.get(userId) ? 0 : userItemBuy.get(userId));
+            features[255] = String.valueOf(null == userItemFollow.get(userId) ? 0 : userItemFollow.get(userId));
 
-            features[262] = String.valueOf(userItemClickRank.get(userId));
-            features[263] = String.valueOf(userItemDetailRank.get(userId));
-            features[264] = String.valueOf(userItemCartRank.get(userId));
-            features[265] = String.valueOf(userItemCartDeleteRank.get(userId));
-            features[266] = String.valueOf(userItemBuyRank.get(userId));
-            features[267] = String.valueOf(userItemFollowRank.get(userId));
+            features[256] = String.valueOf(null == userItemClickRank.get(userId) ? 0 : userItemClickRank.get(userId));
+            features[257] = String.valueOf(null == userItemDetailRank.get(userId) ? 0 : userItemDetailRank.get(userId));
+            features[258] = String.valueOf(null == userItemCartRank.get(userId) ? 0 : userItemCartRank.get(userId));
+            features[259] = String.valueOf(null == userItemCartDeleteRank.get(userId) ? 0 : userItemCartDeleteRank.get(userId));
+            features[260] = String.valueOf(null == userItemBuyRank.get(userId) ? 0 : userItemBuyRank.get(userId));
+            features[261] = String.valueOf(null == userItemFollowRank.get(userId) ? 0 : userItemFollowRank.get(userId));
 
-            features[268] = String.valueOf(itemUserClick.get(skuId));
-            features[269] = String.valueOf(itemUserDetail.get(skuId));
-            features[270] = String.valueOf(itemUserCart.get(skuId));
-            features[271] = String.valueOf(itemUserCartDelete.get(skuId));
-            features[272] = String.valueOf(itemUserBuy.get(skuId));
-            features[273] = String.valueOf(itemUserFollow.get(skuId));
+            features[262] = String.valueOf(null == itemUserClick.get(skuId) ? 0 : itemUserClick.get(skuId));
+            features[263] = String.valueOf(null == itemUserDetail.get(skuId) ? 0 : itemUserDetail.get(skuId));
+            features[264] = String.valueOf(null == itemUserCart.get(skuId) ? 0 : itemUserCart.get(skuId));
+            features[265] = String.valueOf(null == itemUserCartDelete.get(skuId) ? 0 : itemUserCartDelete.get(skuId));
+            features[266] = String.valueOf(null == itemUserBuy.get(skuId) ? 0 : itemUserBuy.get(skuId));
+            features[267] = String.valueOf(null == itemUserFollow.get(skuId) ? 0 : itemUserFollow.get(skuId));
 
-            features[274] = String.valueOf(itemUserClickRank.get(skuId));
-            features[275] = String.valueOf(itemUserDetailRank.get(skuId));
-            features[276] = String.valueOf(itemUserCartRank.get(skuId));
-            features[277] = String.valueOf(itemUserCartDeleteRank.get(skuId));
-            features[278] = String.valueOf(itemUserBuyRank.get(skuId));
-            features[279] = String.valueOf(itemUserFollowRank.get(skuId));
+            features[268] = String.valueOf(null == itemUserClickRank.get(skuId) ? 0 : itemUserClickRank.get(skuId));
+            features[269] = String.valueOf(null == itemUserDetailRank.get(skuId) ? 0 : itemUserDetailRank.get(skuId));
+            features[270] = String.valueOf(null == itemUserCartRank.get(skuId) ? 0 : itemUserCartRank.get(skuId));
+            features[271] = String.valueOf(null == itemUserCartDeleteRank.get(skuId) ? 0 : itemUserCartDeleteRank.get(skuId));
+            features[272] = String.valueOf(null == itemUserBuyRank.get(skuId) ? 0 : itemUserBuyRank.get(skuId));
+            features[273] = String.valueOf(null == itemUserFollowRank.get(skuId) ? 0 : itemUserFollowRank.get(skuId));
 
             if(!isPredict){
                 Long count = labelMap.get(userId + "_" + skuId);
                 if(null == count){
-                    features[280] = String.valueOf(1);
+                    features[274] = String.valueOf(1);
                     ++negative;
                 }
                 else {
-                    features[280] = String.valueOf(0);
+                    features[274] = String.valueOf(0);
                     ++positive;
                 }
             }
