@@ -224,11 +224,12 @@ public class AllFeatures {
         log.info("feature size: " + attributes.size());
     }
 
-    public static List<String[]> features(String start, String end, String labelStart, String labelEnd, boolean isPredict) throws Exception{
+    public static List<String[]> features(String start, String end, String labelStart, String labelEnd, boolean isPredict, String filename) throws Exception{
         List<String[]> lines = new ArrayList<>();
 
         Map<String,Map<String, Object>> userInfos = new HashMap<>();
         String userInfoSql = "select user_id,sku_id,max(age) as age,max(sex) as sex,max(user_level) as user_level,max(attr1) as attr1,max(attr2) as attr2,max(attr3) as attr3,max(cate) as cate,max(brand) as brand,max(comment_num) as comment_num,max(has_bad_comment) as has_bad_comment,max(bad_comment_rate) as bad_comment_rate from user_action_1 where action_date>='" + start + "' and action_date<='" + end + "' group by user_id,sku_id";
+        log.info("user info sql: " + userInfoSql);
         List<Map<String, Object>> result = DBOperation.queryBySql(userInfoSql);
         log.info("user info size: " + result.size());
         for(Map<String, Object> row : result){
@@ -612,10 +613,18 @@ public class AllFeatures {
         log.info("positive: " + positive);
         log.info("negative: " + negative);
 
-        CSVWriter testWriter = new CSVWriter(new FileWriter(path + "test.csv"), ',', '\0');
-        testWriter.writeNext(attributes.keySet().toArray(new String[0]));
-        testWriter.writeAll(lines);
-        testWriter.close();
+        CSVWriter writer = new CSVWriter(new FileWriter(path + filename), ',', '\0');
+        if(isPredict){
+            List<String> list = new ArrayList<>(attributes.keySet());
+            List<String> header = list.subList(0, attributes.size() - 1);
+            writer.writeNext(header.toArray(new String[0]));
+        }
+        else {
+            writer.writeNext(attributes.keySet().toArray(new String[0]));
+        }
+
+        writer.writeAll(lines);
+        writer.close();
 
         return lines;
     }
