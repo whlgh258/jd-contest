@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class AllFeatures {
     private static final Logger log = Logger.getLogger(AllFeatures.class);
-    private static final String path = "/home/wanghl/jd_contest/0507/";
+    private static final String path = "/home/wanghl/jd_contest/0510/";
     private static final int[] modelIds = new int[]{11,217,27,216,17,210,14,211,218,26,28,24,220,21,25,15,221,222,29,23,19,16,223,219,116,224,22,31,125,13,111,18,33,119,333,112,322,311,318,110,319,34,12,124,120,121,325,331,329,334,346,328,32,320,341,348,340,323,337,343,345,336,312,321,335,347,344,342,316,315,36,115,114,113,122,317,212,313,35,314,39,338,225,310,324,332,327,37,38,330};
     private static final Map<String, Integer> attributes;
 

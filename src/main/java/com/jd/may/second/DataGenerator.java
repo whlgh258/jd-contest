@@ -17,9 +17,9 @@ import java.util.*;
 public class DataGenerator {
     private static final Logger log = Logger.getLogger(DataGenerator.class);
 
-    private static final int[] windows = new int[]{5/*1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65*/};
+    private static final int[] windows = new int[]{1/*1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65*/};
     private static final LocalDate last = LocalDate.parse("2016-04-15");
-    private static final LocalDate first = LocalDate.parse("2016-02-01");
+    private static final LocalDate first = LocalDate.parse("2016-04-06");
 
     public static void main(String[] args) throws Exception {
         int slide = 5;
