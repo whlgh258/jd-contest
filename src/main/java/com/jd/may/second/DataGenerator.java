@@ -19,7 +19,7 @@ public class DataGenerator {
     //https://github.com/h2oai/h2o-3/blob/angela-docs/h2o-docs/src/product/tutorials/GridSearch.md
     private static final int[] windows = new int[]{1/*1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65*/};
     private static final LocalDate last = LocalDate.parse("2016-04-15");
-    private static final LocalDate first = LocalDate.parse("2016-04-06");
+    private static final LocalDate first = LocalDate.parse("2016-04-12");
 
     public static void main(String[] args) throws Exception {
         int slide = 5;
@@ -72,6 +72,8 @@ public class DataGenerator {
              * 三、交叉
              * 1、user × user-item
              * 2、item × user-item
+             * 用户click购买率×总户总点击、用户click购买率×用户对某个item的点击，其余类似，增加10个特征
+             * 商品click购买率×商品总点击、商品click购买率×商品被某个user的点击，其余类似，增加10个特征
              * 四、
              * 交互区间内是否购买
              * 交互区间内购买天数
@@ -106,8 +108,11 @@ public class DataGenerator {
             log.info("valid  : " + validStart + " - " + validEnd + " *** " + validLabelStart + " - " + validLabelEnd);
 
             AllFeatures.features(predictStart, predictEnd, null, null, true, "predict.csv");
+            log.info("-----------------------------------------------------------------------------------");
             AllFeatures.features(testStart, testEnd, testLabelStart, testLabelEnd, false, "test.csv");
+            log.info("-----------------------------------------------------------------------------------");
             AllFeatures.features(validStart, validEnd, validLabelStart, validLabelEnd, false, "valid.csv");
+            log.info("-----------------------------------------------------------------------------------");
 
             for(LocalDate date = validLabelEndDate; date.minusDays((window - 1) + 2 * slide).isAfter(first.minusDays(1)); date = date.minusDays(slide)){
                 LocalDate trainLabelEndDate = date.minusDays(slide);
@@ -122,6 +127,7 @@ public class DataGenerator {
 
                 log.info("train  : " + trainStart + " - " + trainEnd + " *** " + trainLabelStart + " - " + trainLabelEnd);
                 AllFeatures.features(trainStart, trainEnd, trainLabelStart, trainLabelEnd, false, "train_" + trainStart + ".csv");
+                log.info("-----------------------------------------------------------------------------------");
             }
 
         }
