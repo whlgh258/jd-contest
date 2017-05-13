@@ -509,6 +509,90 @@ public class AllFeatures {
         Map<String, Double> userItemRatioUserItemCartDeleteCross = new HashMap<>();
         Map<String, Double> userItemRatioUserItemFollowCross = new HashMap<>();
 
+        for(Entry<String, Map<String, Double>> entry : userBuyRatioFeature.entrySet()){
+            String userId = entry.getKey();
+            Map<String, Double> value = entry.getValue();
+            double buyClickRatio = value.get("click");
+            double buyDetailRatio = value.get("detail");
+            double buyCartRatio = value.get("cart");
+            double buyCartDeleteRatio = value.get("cartDelete");
+            double buyFollowRatio = value.get("follow");
+
+            userRatioUserClickCross.put(userId, DigitalFormat.formatForDouble(buyClickRatio * (null == userSumFeature.get(userId).get("click") ? 0 : DigitalFormat.formatForDouble(userSumFeature.get(userId).get("click")))));
+            userRatioUserDetailCross.put(userId, DigitalFormat.formatForDouble(buyDetailRatio * (null == userSumFeature.get(userId).get("detail") ? 0 : userSumFeature.get(userId).get("detail"))));
+            userRatioUserCartCross.put(userId, DigitalFormat.formatForDouble(buyCartRatio * (null == userSumFeature.get(userId).get("cart") ? 0 : userSumFeature.get(userId).get("cart"))));
+            userRatioUserCartDeleteCross.put(userId, DigitalFormat.formatForDouble(buyCartDeleteRatio * (null == userSumFeature.get(userId).get("cartDelete") ? 0 : userSumFeature.get(userId).get("cartDelete"))));
+            userRatioUserFollowCross.put(userId, DigitalFormat.formatForDouble(buyFollowRatio * (null == userSumFeature.get(userId).get("follow") ? 0 : userSumFeature.get(userId).get("follow"))));
+
+            Map<String, Map<String, Double>> userMap = userItemSumCrossFeature.get(userId);
+            for(Entry<String, Map<String, Double>> ent : userMap.entrySet()){
+                String key = ent.getKey();
+                Map<String, Double> sumMap = ent.getValue();
+                userRatioUserItemClickCross.put(key, DigitalFormat.formatForDouble(buyClickRatio * (null == sumMap.get("click") ? 0 : sumMap.get("click"))));
+                userRatioUserItemDetailCross.put(key, DigitalFormat.formatForDouble(buyDetailRatio * (null == sumMap.get("detail") ? 0 : sumMap.get("detail"))));
+                userRatioUserItemCartCross.put(key, DigitalFormat.formatForDouble(buyCartRatio * (null == sumMap.get("cart") ? 0 : sumMap.get("cart"))));
+                userRatioUserItemCartDeleteCross.put(key, DigitalFormat.formatForDouble(buyCartDeleteRatio * (null == sumMap.get("cartDelete") ? 0 : sumMap.get("cartDelete"))));
+                userRatioUserItemFollowCross.put(key, DigitalFormat.formatForDouble(buyFollowRatio * (null == sumMap.get("follow") ? 0 : sumMap.get("follow"))));
+            }
+        }
+
+        for(Entry<String, Map<String, Double>> entry : itemBuyRatioFeature.entrySet()){
+            String skuId = entry.getKey();
+            Map<String, Double> value = entry.getValue();
+            double buyClickRatio = value.get("click");
+            double buyDetailRatio = value.get("detail");
+            double buyCartRatio = value.get("cart");
+            double buyCartDeleteRatio = value.get("cartDelete");
+            double buyFollowRatio = value.get("follow");
+
+            itemRatioItemClickCross.put(skuId, DigitalFormat.formatForDouble(buyClickRatio * (null == itemSumFeature.get(skuId).get("click") ? 0 : itemSumFeature.get(skuId).get("click"))));
+            itemRatioItemDetailCross.put(skuId, DigitalFormat.formatForDouble(buyDetailRatio * (null == itemSumFeature.get(skuId).get("detail") ? 0 : itemSumFeature.get(skuId).get("detail"))));
+            itemRatioItemCartCross.put(skuId, DigitalFormat.formatForDouble(buyCartRatio * (null == itemSumFeature.get(skuId).get("cart") ? 0 : itemSumFeature.get(skuId).get("cart"))));
+            itemRatioItemCartDeleteCross.put(skuId, DigitalFormat.formatForDouble(buyCartDeleteRatio * (null == itemSumFeature.get(skuId).get("cartDelete") ? 0 : itemSumFeature.get(skuId).get("cartDelete"))));
+            itemRatioItemFollowCross.put(skuId, DigitalFormat.formatForDouble(buyFollowRatio * (null == itemSumFeature.get(skuId).get("follow") ? 0 : itemSumFeature.get(skuId).get("follow"))));
+
+            Map<String, Map<String, Double>> itemMap = userItemSumCrossFeature.get(skuId);
+            for(Entry<String, Map<String, Double>> ent : itemMap.entrySet()) {
+                String key = ent.getKey();
+                Map<String, Double> sumMap = ent.getValue();
+                itemRatioUserItemClickCross.put(key, DigitalFormat.formatForDouble(buyClickRatio * (null == sumMap.get("click") ? 0 : sumMap.get("click"))));
+                itemRatioUserItemDetailCross.put(key, DigitalFormat.formatForDouble(buyDetailRatio * (null == sumMap.get("detail") ? 0 : sumMap.get("detail"))));
+                itemRatioUserItemCartCross.put(key, DigitalFormat.formatForDouble(buyCartRatio * (null == sumMap.get("cart") ? 0 : sumMap.get("cart"))));
+                itemRatioUserItemCartDeleteCross.put(key, DigitalFormat.formatForDouble(buyCartDeleteRatio * (null == sumMap.get("cartDelete") ? 0 : sumMap.get("cartDelete"))));
+                itemRatioUserItemFollowCross.put(key, DigitalFormat.formatForDouble(buyFollowRatio * (null == sumMap.get("follow") ? 0 : sumMap.get("follow"))));
+            }
+        }
+
+        for(Entry<String, Map<String, Double>> entry : userItemBuyRatioFeature.entrySet()){
+            String key = entry.getKey();
+            String userId = key.split("_")[0];
+            String skuId = key.split("_")[1];
+            Map<String, Double> value = entry.getValue();
+            double buyClickRatio = value.get("click");
+            double buyDetailRatio = value.get("detail");
+            double buyCartRatio = value.get("cart");
+            double buyCartDeleteRatio = value.get("cartDelete");
+            double buyFollowRatio = value.get("follow");
+
+            userItemRatioUserClickCross.put(userId, DigitalFormat.formatForDouble(buyClickRatio * (null == userSumFeature.get(userId).get("click") ? 0 : userSumFeature.get(userId).get("click"))));
+            userItemRatioUserDetailCross.put(userId, DigitalFormat.formatForDouble(buyDetailRatio * (null == userSumFeature.get(userId).get("detail") ? 0 : userSumFeature.get(userId).get("detail"))));
+            userItemRatioUserCartCross.put(userId, DigitalFormat.formatForDouble(buyCartRatio * (null == userSumFeature.get(userId).get("cart") ? 0 : userSumFeature.get(userId).get("cart"))));
+            userItemRatioUserCartDeleteCross.put(userId, DigitalFormat.formatForDouble(buyCartDeleteRatio * (null == userSumFeature.get(userId).get("cartDelete") ? 0 : userSumFeature.get(userId).get("cartDelete"))));
+            userItemRatioUserFollowCross.put(userId, DigitalFormat.formatForDouble(buyFollowRatio * (null == userSumFeature.get(userId).get("follow") ? 0 : userSumFeature.get(userId).get("follow"))));
+
+            userItemRatioItemClickCross.put(skuId, DigitalFormat.formatForDouble(buyClickRatio * (null == itemSumFeature.get(skuId).get("click") ? 0 : itemSumFeature.get(skuId).get("click"))));
+            userItemRatioItemDetailCross.put(skuId, DigitalFormat.formatForDouble(buyDetailRatio * (null == itemSumFeature.get(skuId).get("detail") ? 0 : itemSumFeature.get(skuId).get("detail"))));
+            userItemRatioItemCartCross.put(skuId, DigitalFormat.formatForDouble(buyCartRatio * (null == itemSumFeature.get(skuId).get("cart") ? 0 : itemSumFeature.get(skuId).get("cart"))));
+            userItemRatioItemCartDeleteCross.put(skuId, DigitalFormat.formatForDouble(buyCartDeleteRatio * (null == itemSumFeature.get(skuId).get("cartDelete") ? 0 : itemSumFeature.get(skuId).get("cartDelete"))));
+            userItemRatioItemFollowCross.put(skuId, DigitalFormat.formatForDouble(buyFollowRatio * (null == itemSumFeature.get(skuId).get("follow") ? 0 : itemSumFeature.get(skuId).get("follow"))));
+
+            userItemRatioUserItemClickCross.put(key, DigitalFormat.formatForDouble(buyClickRatio * (null == userItemSumFeature.get(key).get("click") ? 0 : userItemSumFeature.get(key).get("click"))));
+            userItemRatioUserItemDetailCross.put(key, DigitalFormat.formatForDouble(buyDetailRatio * (null == userItemSumFeature.get(key).get("detail") ? 0 : userItemSumFeature.get(key).get("detail"))));
+            userItemRatioUserItemCartCross.put(key, DigitalFormat.formatForDouble(buyCartRatio * (null == userItemSumFeature.get(key).get("cart") ? 0 : userItemSumFeature.get(key).get("cart"))));
+            userItemRatioUserItemCartDeleteCross.put(key, DigitalFormat.formatForDouble(buyCartDeleteRatio * (null == userItemSumFeature.get(key).get("cartDelete") ? 0 : userItemSumFeature.get(key).get("cartDelete"))));
+            userItemRatioUserItemFollowCross.put(key, DigitalFormat.formatForDouble(buyFollowRatio * (null == userItemSumFeature.get(key).get("follow") ? 0 : userItemSumFeature.get(key).get("follow"))));
+        }
+
         Map<String, Integer> userRatioUserClickCrossRank = Rank.rank(userRatioUserClickCross);
         Map<String, Integer> userRatioUserDetailCrossRank = Rank.rank(userRatioUserDetailCross);
         Map<String, Integer> userRatioUserCartCrossRank = Rank.rank(userRatioUserCartCross);
@@ -546,91 +630,6 @@ public class AllFeatures {
         Map<String, Integer> userItemRatioUserItemCartCrossRank = Rank.rank(userItemRatioUserItemCartCross);
         Map<String, Integer> userItemRatioUserItemCartDeleteCrossRank = Rank.rank(userItemRatioUserItemCartDeleteCross);
         Map<String, Integer> userItemRatioUserItemFollowCrossRank = Rank.rank(userItemRatioUserItemFollowCross);
-
-        for(Entry<String, Map<String, Double>> entry : userBuyRatioFeature.entrySet()){
-            String userId = entry.getKey();
-            Map<String, Double> value = entry.getValue();
-            double buyClickRatio = value.get("click");
-            double buyDetailRatio = value.get("detail");
-            double buyCartRatio = value.get("cart");
-            double buyCartDeleteRatio = value.get("cartDelete");
-            double buyFollowRatio = value.get("follow");
-
-            userRatioUserClickCross.put(userId, buyClickRatio * (null == userSumFeature.get(userId).get("click") ? 0 : userSumFeature.get(userId).get("click")));
-            userRatioUserDetailCross.put(userId, buyDetailRatio * (null == userSumFeature.get(userId).get("detail") ? 0 : userSumFeature.get(userId).get("detail")));
-            userRatioUserCartCross.put(userId, buyCartRatio * (null == userSumFeature.get(userId).get("cart") ? 0 : userSumFeature.get(userId).get("cart")));
-            userRatioUserCartDeleteCross.put(userId, buyCartDeleteRatio * (null == userSumFeature.get(userId).get("cartDelete") ? 0 : userSumFeature.get(userId).get("cartDelete")));
-            userRatioUserFollowCross.put(userId, buyFollowRatio * (null == userSumFeature.get(userId).get("follow") ? 0 : userSumFeature.get(userId).get("follow")));
-
-            Map<String, Map<String, Double>> userMap = userItemSumCrossFeature.get(userId);
-            for(Entry<String, Map<String, Double>> ent : userMap.entrySet()){
-                String key = ent.getKey();
-                Map<String, Double> sumMap = ent.getValue();
-                userRatioUserItemClickCross.put(key, buyClickRatio * (null == sumMap.get("click") ? 0 : sumMap.get("click")));
-                userRatioUserItemDetailCross.put(key, buyDetailRatio * (null == sumMap.get("detail") ? 0 : sumMap.get("detail")));
-                userRatioUserItemCartCross.put(key, buyCartRatio * (null == sumMap.get("cart") ? 0 : sumMap.get("cart")));
-                userRatioUserItemCartDeleteCross.put(key, buyCartDeleteRatio * (null == sumMap.get("cartDelete") ? 0 : sumMap.get("cartDelete")));
-                userRatioUserItemFollowCross.put(key, buyFollowRatio * (null == sumMap.get("follow") ? 0 : sumMap.get("follow")));
-            }
-        }
-
-        for(Entry<String, Map<String, Double>> entry : itemBuyRatioFeature.entrySet()){
-            String skuId = entry.getKey();
-            Map<String, Double> value = entry.getValue();
-            double buyClickRatio = value.get("click");
-            double buyDetailRatio = value.get("detail");
-            double buyCartRatio = value.get("cart");
-            double buyCartDeleteRatio = value.get("cartDelete");
-            double buyFollowRatio = value.get("follow");
-
-            itemRatioItemClickCross.put(skuId, buyClickRatio * (null == itemSumFeature.get(skuId).get("click") ? 0 : itemSumFeature.get(skuId).get("click")));
-            itemRatioItemDetailCross.put(skuId, buyDetailRatio * (null == itemSumFeature.get(skuId).get("detail") ? 0 : itemSumFeature.get(skuId).get("detail")));
-            itemRatioItemCartCross.put(skuId, buyCartRatio * (null == itemSumFeature.get(skuId).get("cart") ? 0 : itemSumFeature.get(skuId).get("cart")));
-            itemRatioItemCartDeleteCross.put(skuId, buyCartDeleteRatio * (null == itemSumFeature.get(skuId).get("cartDelete") ? 0 : itemSumFeature.get(skuId).get("cartDelete")));
-            itemRatioItemFollowCross.put(skuId, buyFollowRatio * (null == itemSumFeature.get(skuId).get("follow") ? 0 : itemSumFeature.get(skuId).get("follow")));
-
-            Map<String, Map<String, Double>> itemMap = userItemSumCrossFeature.get(skuId);
-            for(Entry<String, Map<String, Double>> ent : itemMap.entrySet()) {
-                String key = ent.getKey();
-                Map<String, Double> sumMap = ent.getValue();
-                itemRatioUserItemClickCross.put(key, buyClickRatio * (null == sumMap.get("click") ? 0 : sumMap.get("click")));
-                itemRatioUserItemDetailCross.put(key, buyDetailRatio * (null == sumMap.get("detail") ? 0 : sumMap.get("detail")));
-                itemRatioUserItemCartCross.put(key, buyCartRatio * (null == sumMap.get("cart") ? 0 : sumMap.get("cart")));
-                itemRatioUserItemCartDeleteCross.put(key, buyCartDeleteRatio * (null == sumMap.get("cartDelete") ? 0 : sumMap.get("cartDelete")));
-                itemRatioUserItemFollowCross.put(key, buyFollowRatio * (null == sumMap.get("follow") ? 0 : sumMap.get("follow")));
-            }
-        }
-
-        for(Entry<String, Map<String, Double>> entry : userItemBuyRatioFeature.entrySet()){
-            String key = entry.getKey();
-            String userId = key.split("_")[0];
-            String skuId = key.split("_")[1];
-            Map<String, Double> value = entry.getValue();
-            double buyClickRatio = value.get("click");
-            double buyDetailRatio = value.get("detail");
-            double buyCartRatio = value.get("cart");
-            double buyCartDeleteRatio = value.get("cartDelete");
-            double buyFollowRatio = value.get("follow");
-
-            userItemRatioUserClickCross.put(userId, buyClickRatio * (null == userSumFeature.get(userId).get("click") ? 0 : userSumFeature.get(userId).get("click")));
-            userItemRatioUserDetailCross.put(userId, buyDetailRatio * (null == userSumFeature.get(userId).get("detail") ? 0 : userSumFeature.get(userId).get("detail")));
-            userItemRatioUserCartCross.put(userId, buyCartRatio * (null == userSumFeature.get(userId).get("cart") ? 0 : userSumFeature.get(userId).get("cart")));
-            userItemRatioUserCartDeleteCross.put(userId, buyCartDeleteRatio * (null == userSumFeature.get(userId).get("cartDelete") ? 0 : userSumFeature.get(userId).get("cartDelete")));
-            userItemRatioUserFollowCross.put(userId, buyFollowRatio * (null == userSumFeature.get(userId).get("follow") ? 0 : userSumFeature.get(userId).get("follow")));
-
-            userItemRatioItemClickCross.put(skuId, buyClickRatio * (null == itemSumFeature.get(skuId).get("click") ? 0 : itemSumFeature.get(skuId).get("click")));
-            userItemRatioItemDetailCross.put(skuId, buyDetailRatio * (null == itemSumFeature.get(skuId).get("detail") ? 0 : itemSumFeature.get(skuId).get("detail")));
-            userItemRatioItemCartCross.put(skuId, buyCartRatio * (null == itemSumFeature.get(skuId).get("cart") ? 0 : itemSumFeature.get(skuId).get("cart")));
-            userItemRatioItemCartDeleteCross.put(skuId, buyCartDeleteRatio * (null == itemSumFeature.get(skuId).get("cartDelete") ? 0 : itemSumFeature.get(skuId).get("cartDelete")));
-            userItemRatioItemFollowCross.put(skuId, buyFollowRatio * (null == itemSumFeature.get(skuId).get("follow") ? 0 : itemSumFeature.get(skuId).get("follow")));
-
-            userItemRatioUserItemClickCross.put(key, buyClickRatio * (null == userItemSumFeature.get(key).get("click") ? 0 : userItemSumFeature.get(key).get("click")));
-            userItemRatioUserItemDetailCross.put(key, buyDetailRatio * (null == userItemSumFeature.get(key).get("detail") ? 0 : userItemSumFeature.get(key).get("detail")));
-            userItemRatioUserItemCartCross.put(key, buyCartRatio * (null == userItemSumFeature.get(key).get("cart") ? 0 : userItemSumFeature.get(key).get("cart")));
-            userItemRatioUserItemCartDeleteCross.put(key, buyCartDeleteRatio * (null == userItemSumFeature.get(key).get("cartDelete") ? 0 : userItemSumFeature.get(key).get("cartDelete")));
-            userItemRatioUserItemFollowCross.put(key, buyFollowRatio * (null == userItemSumFeature.get(key).get("follow") ? 0 : userItemSumFeature.get(key).get("follow")));
-        }
-
 
         Map<String, Long> labelMap = new HashMap<>();
         if(!isPredict){
