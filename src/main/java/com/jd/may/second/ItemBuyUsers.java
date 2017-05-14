@@ -19,10 +19,10 @@ public class ItemBuyUsers {
         List<Map<String, Object>> result = DBOperation.queryBySql(sql);
         log.info("size: " + result.size());
         for(Map<String, Object> row : result){
-            String skuId = String.valueOf(row.get(key));
+            String id = String.valueOf(row.get(key));
             double count = (double) row.get("count");
 
-            map.put(skuId, count);
+            map.put(id, count);
         }
 
         return map;
