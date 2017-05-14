@@ -1,15 +1,8 @@
 package com.jd.may.second;
 
-import au.com.bytecode.opencsv.CSVWriter;
-import com.alibaba.fastjson.JSONObject;
-import multithreads.DBOperation;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import java.io.FileWriter;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
 
 /**
  * Created by wanghl on 17-4-30.
@@ -107,11 +100,18 @@ public class DataGenerator {
             log.info("test   : " + testStart + " - " + testEnd + " *** " + testLabelStart + " - " + testLabelEnd);
             log.info("valid  : " + validStart + " - " + validEnd + " *** " + validLabelStart + " - " + validLabelEnd);
 
-            AllFeatures.features(predictStart, predictEnd, null, null, true, "predict.csv");
+//            AllFeaturesForGBM.features(predictStart, predictEnd, null, null, true, "predict.csv");
+//            log.info("-----------------------------------------------------------------------------------");
+//            AllFeaturesForGBM.features(testStart, testEnd, testLabelStart, testLabelEnd, false, "test.csv");
+//            log.info("-----------------------------------------------------------------------------------");
+//            AllFeaturesForGBM.features(validStart, validEnd, validLabelStart, validLabelEnd, false, "valid.csv");
+//            log.info("-----------------------------------------------------------------------------------");
+
+            AllFeaturesForDL.features(predictStart, predictEnd, null, null, true, "predict.csv");
             log.info("-----------------------------------------------------------------------------------");
-            AllFeatures.features(testStart, testEnd, testLabelStart, testLabelEnd, false, "test.csv");
+            AllFeaturesForDL.features(testStart, testEnd, testLabelStart, testLabelEnd, false, "test.csv");
             log.info("-----------------------------------------------------------------------------------");
-            AllFeatures.features(validStart, validEnd, validLabelStart, validLabelEnd, false, "valid.csv");
+            AllFeaturesForDL.features(validStart, validEnd, validLabelStart, validLabelEnd, false, "valid.csv");
             log.info("-----------------------------------------------------------------------------------");
 
             for(LocalDate date = validLabelEndDate; date.minusDays((window - 1) + 2 * slide).isAfter(first.minusDays(1)); date = date.minusDays(slide)){
@@ -126,7 +126,7 @@ public class DataGenerator {
                 String trainStart = trainStartDate.toString();
 
                 log.info("train  : " + trainStart + " - " + trainEnd + " *** " + trainLabelStart + " - " + trainLabelEnd);
-                AllFeatures.features(trainStart, trainEnd, trainLabelStart, trainLabelEnd, false, "train_" + trainStart + ".csv");
+                AllFeaturesForGBM.features(trainStart, trainEnd, trainLabelStart, trainLabelEnd, false, "train_" + trainStart + ".csv");
                 log.info("-----------------------------------------------------------------------------------");
             }
 
