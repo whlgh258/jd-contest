@@ -56,7 +56,7 @@ public class DataGenerator {
 
 //        AllFeaturesForGBM.features("predict_GBM.csv", "user_action_3", true);
 //        AllFeaturesForGBM.features("data_GBM.csv", "user_action_2", false);
-        AllFeaturesForDL.features("predict_DL.csv", "user_action_3", true);
+//        AllFeaturesForDL.features("predict_DL.csv", "user_action_3", true);
         AllFeaturesForDL.features("data_DL.csv", "user_action_2", false);
 
     }
