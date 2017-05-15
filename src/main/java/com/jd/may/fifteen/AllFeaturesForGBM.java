@@ -197,13 +197,13 @@ public class AllFeaturesForGBM {
         String userItemSumSql = "select user_id,sku_id,round(log(sum(click)+1),3) as click,round(log(sum(detail>0)+1),3) as detail,round(log(sum(cart)+1),3) as cart,round(log(sum(cart_delete)+1),3) as cart_delete,round(log(sum(follow)+1),3) as follow from " + tablename + " group by user_id,sku_id";
         String userItemAvgSql = "select user_id,sku_id,round(log(avg(click)+1),3) as click,round(log(avg(detail>0)+1),3) as detail,round(log(avg(cart)+1),3) as cart,round(log(avg(cart_delete)+1),3) as cart_delete,round(log(avg(follow)+1),3) as follow from " + tablename + " group by user_id,sku_id";
 
-        Map<String, Map<String, Double>> userCountFeature = Features.countFeature(userCountSql, 0);
+        Map<String, Map<String, Double>> userCountFeature = Features.countFeature(userCountSql, 0, 0);
         Map<String, Map<String, Double>> userSumFeature = Features.sumFeature(userSumSql, 0);
         Map<String, Map<String, Double>> userAvgFeature = Features.avgFeature(userAvgSql, 0);
-        Map<String, Map<String, Double>> itemCountFeature = Features.countFeature(itemCountSql, 1);
+        Map<String, Map<String, Double>> itemCountFeature = Features.countFeature(itemCountSql, 1, 0);
         Map<String, Map<String, Double>> itemSumFeature = Features.sumFeature(itemSumSql, 1);
         Map<String, Map<String, Double>> itemAvgFeature = Features.avgFeature(itemAvgSql, 1);
-        Map<String, Map<String, Double>> userItemCountFeature = Features.countFeature(userItemCountSql, 2);
+        Map<String, Map<String, Double>> userItemCountFeature = Features.countFeature(userItemCountSql, 2, 0);
         Map<String, Map<String, Double>> userItemSumFeature = Features.sumFeature(userItemSumSql, 2);
         Map<String, Map<String, Double>> userItemAvgFeature = Features.avgFeature(userItemAvgSql, 2);
 

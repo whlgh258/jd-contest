@@ -23,7 +23,7 @@ public class UpdatePeriod {
         int blockSize = 30;
         Connection conn = DBConnection.getConnection();
         Connection[] connections = new Connection[threadNum];
-        String tablename = "user_action_3";
+        String tablename = "user_action_2";
 
         BlockingQueue<Map<String, Object>> userQueue = new ArrayBlockingQueue<>(blockSize);
 

@@ -22,8 +22,26 @@ public class AllFeaturesForDL {
     private static final String path = "/home/wanghl/jd_contest/0513/";
     private static final int[] modelIds = new int[]{11,217,27,216,17,210,14,211,218,26,28,24,220,21,25,15,221,222,29,23,19,16,223,219,116,224,22,31,125,13,111,18,33,119,333,112,322,311,318,110,319,34,12,124,120,121,325,331,329,334,346,328,32,320,341,348,340,323,337,343,345,336,312,321,335,347,344,342,316,315,36,115,114,113,122,317,212,313,35,314,39,338,225,310,324,332,327,37,38,330};
     private static final Map<String, Integer> attributes;
+    private static final Map<Integer, Double> decayMap;
 
     static {
+        decayMap = new HashMap<>();
+        decayMap.put(-1, 1.0);
+        decayMap.put(-2, 0.5);
+        decayMap.put(-3, 0.333);
+        decayMap.put(-4, 0.25);
+        decayMap.put(-5, 0.2);
+        decayMap.put(-6, 0.167);
+        decayMap.put(-7, 0.143);
+        decayMap.put(-8, 0.125);
+        decayMap.put(-9, 0.111);
+        decayMap.put(-10, 0.1);
+        decayMap.put(-11, 0.091);
+        decayMap.put(-12, 0.083);
+        decayMap.put(-13, 0.077);
+        decayMap.put(-14, 0.071);
+        decayMap.put(-15, 0.067);
+
         attributes = new LinkedHashMap<>();
         int i = 0;
         attributes.put("user_id", i++);
@@ -126,6 +144,17 @@ public class AllFeaturesForDL {
             userInfos.put(userId + "_" + skuId, row);
         }
 
+        Map<String, Map<String, Double>> userCountMap = new HashMap<>();
+        for(int i = 1; i < 15; i++){
+            for(int j = i + 1; j <= 15; j++){
+                int diff = i - j;
+                double decay = decayMap.get(diff);
+                String userCountSql = "select user_id,round(log(count(if(click>0,1,null))+1),3) as click,round(log(count(if(detail>0,1,null))+1),3) as detail,round(log(count(if(cart>0,1,null))+1),3) as cart,round(log(count(if(cart_delete>0,1,null))+1),3) as cart_delete,round(log(count(if(buy>0,1,null))+1),3) as buy,round(log(count(if(follow>0,1,null))+1),3) as follow from " + tablename + " where action_period=" + j + " and user_id in(select user_id from user_action_2 where buy>0 and action_period=" + i + ") group by user_id";
+                Map<String, Map<String, Double>> userCountFeature = Features.countFeature(userCountSql, 0, decay);
+
+            }
+        }
+
         String userCountSql = "select user_id,round(log(count(if(click>0,1,null))+1),3) as click,round(log(count(if(detail>0,1,null))+1),3) as detail,round(log(count(if(cart>0,1,null))+1),3) as cart,round(log(count(if(cart_delete>0,1,null))+1),3) as cart_delete,round(log(count(if(follow>0,1,null))+1),3) as follow from " + tablename + " group by user_id";
         String userSumSql = "select user_id,round(log(sum(click)+1),3) as click,round(log(sum(detail>0)+1),3) as detail,round(log(sum(cart)+1),3) as cart,round(log(sum(cart_delete)+1),3) as cart_delete,round(log(sum(follow)+1),3) as follow from " + tablename + " group by user_id";
         String userAvgSql = "select user_id,round(log(avg(click)+1),3) as click,round(log(avg(detail>0)+1),3) as detail,round(log(avg(cart)+1),3) as cart,round(log(avg(cart_delete)+1),3) as cart_delete,round(log(avg(follow)+1),3) as follow from " + tablename + " group by user_id";
@@ -136,13 +165,13 @@ public class AllFeaturesForDL {
         String userItemSumSql = "select user_id,sku_id,round(log(sum(click)+1),3) as click,round(log(sum(detail>0)+1),3) as detail,round(log(sum(cart)+1),3) as cart,round(log(sum(cart_delete)+1),3) as cart_delete,round(log(sum(follow)+1),3) as follow from " + tablename + " group by user_id,sku_id";
         String userItemAvgSql = "select user_id,sku_id,round(log(avg(click)+1),3) as click,round(log(avg(detail>0)+1),3) as detail,round(log(avg(cart)+1),3) as cart,round(log(avg(cart_delete)+1),3) as cart_delete,round(log(avg(follow)+1),3) as follow from " + tablename + " group by user_id,sku_id";
 
-        Map<String, Map<String, Double>> userCountFeature = Features.countFeature(userCountSql, 0);
+        Map<String, Map<String, Double>> userCountFeature = Features.countFeature(userCountSql, 0, 0);
         Map<String, Map<String, Double>> userSumFeature = Features.sumFeature(userSumSql, 0);
         Map<String, Map<String, Double>> userAvgFeature = Features.avgFeature(userAvgSql, 0);
-        Map<String, Map<String, Double>> itemCountFeature = Features.countFeature(itemCountSql, 1);
+        Map<String, Map<String, Double>> itemCountFeature = Features.countFeature(itemCountSql, 1, 0);
         Map<String, Map<String, Double>> itemSumFeature = Features.sumFeature(itemSumSql, 1);
         Map<String, Map<String, Double>> itemAvgFeature = Features.avgFeature(itemAvgSql, 1);
-        Map<String, Map<String, Double>> userItemCountFeature = Features.countFeature(userItemCountSql, 2);
+        Map<String, Map<String, Double>> userItemCountFeature = Features.countFeature(userItemCountSql, 2, 0);
         Map<String, Map<String, Double>> userItemSumFeature = Features.sumFeature(userItemSumSql, 2);
         Map<String, Map<String, Double>> userItemAvgFeature = Features.avgFeature(userItemAvgSql, 2);
 

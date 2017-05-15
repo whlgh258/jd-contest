@@ -13,20 +13,23 @@ import org.apache.log4j.Logger;
 public class Features {
     private static final Logger log = Logger.getLogger(Features.class);
 
-    public static Map<String, Map<String, Double>> countFeature(String sql, int type){
-        return work(sql, type);
+    public static Map<String, Map<String, Double>> countFeature(String sql, int type, double decay){
+        return work(sql, type, decay);
     }
 
     public static Map<String, Map<String, Double>> sumFeature(String sql, int type){
-        return work(sql, type);
+//        return work(sql, type);
+        return null;
     }
 
     public static Map<String, Map<String, Double>> avgFeature(String sql, int type){
-        return work(sql, type);
+//        return work(sql, type);
+        return null;
     }
 
     public static Map<String, Map<String, Double>> buyRatioFeature(String sql, int type){
-        return work(sql, type);
+//        return work(sql, type);
+        return null;
     }
 
     public static Map<String, Map<String,Map<String, Double>>> sumFeatureForCross(String sql){
@@ -78,7 +81,7 @@ public class Features {
         return map;
     }
 
-    private static Map<String, Map<String, Double>> work(String sql, int type){
+    private static Map<String, Map<String, Double>> work(String sql, int type, double decay){
         Map<String, Map<String, Double>> retmap = new HashMap<>();
         log.info("sql: " + sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(sql);
@@ -102,13 +105,23 @@ public class Features {
             double detail = (double)row.get("detail");
             double cart = (double)row.get("cart");
             double cartDelete = (double)row.get("cart_delete");
+            double buy = (double) row.get("buy");
             double follow = (double)row.get("follow");
+
+            click *= decay;
+            detail *= decay;
+            cart *= decay;
+            cartDelete *= decay;
+            buy *= decay;
+            follow *= decay;
+
 
             Map<String, Double> map = new HashMap<>();
             map.put("click", click);
             map.put("detail", detail);
             map.put("cart", cart);
             map.put("cartDelete", cartDelete);
+            map.put("buy", buy);
             map.put("follow", follow);
 
             retmap.put(key, map);

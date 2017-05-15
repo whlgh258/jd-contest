@@ -58,6 +58,9 @@ public class DataGenerator {
          * 从购买出发，往前推，直到action_period为1，特征值需要按购买的action_period和购买之前的action_period的差值进行衰减，以体现出来不同的action时间对于购买的影响
          * 2、预测数据集
          * 以要预测区间的action_period为基准0，往前逐步衰减各个区间的action的各项指标
+         * 3、不同的购买区间生成不同的训练数据，否则购买数据和动作数据会在时间区间上重合，影响训练
+         *
+         * select count(concat_ws('_',user_id,sku_id)) from user_action_1 where action_date>='2016-04-11' and action_date<='2016-04-15' and concat_ws('_',user_id,sku_id) in (select concat_ws('_',user_id,sku_id) from user_action_1 where buy>0 and action_date>='2016-04-11' and action_date<='2016-04-15');
          */
 
 //        AllFeaturesForGBM.features("predict_GBM.csv", "user_action_3", true);
