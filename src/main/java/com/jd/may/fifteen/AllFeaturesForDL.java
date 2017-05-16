@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import multithreads.DBOperation;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -25,6 +26,8 @@ public class AllFeaturesForDL {
     private static final Map<String, Map<String, Object>> userInfos;
     private static final Map<String, Map<String, Object>> itemInfos;
     private static final Map<String, Map<String, Object>> commentInfos;
+
+    private static final Map<String, Object> cache = new HashMap<>();
 
     static {
         userInfos = new HashMap<>();
@@ -91,260 +94,427 @@ public class AllFeaturesForDL {
         Map<String, Map<String, Double>> userItemSumFeature = new HashMap<>();
         Map<String, Map<String, Double>> userItemAvgFeature = new HashMap<>();
 
-        Map<String, Double> userPopularMap = new HashMap<>();
-        Map<String, Double> itemPopularMap = new HashMap<>();
-        Map<String, Double> itemActionUserCountMap = new HashMap<>();
+        Map<String, Map<String, Double>> userPopularMap = new HashMap<>();
+        Map<String, Map<String, Double>> itemPopularMap = new HashMap<>();
+        Map<String, Map<String, Double>> itemActionUserCountMap = new HashMap<>();
 
-        Map<String, Double> userItemClickMap = new HashMap<>();
-        Map<String, Double> userItemDetailMap = new HashMap<>();
-        Map<String, Double> userItemCartMap = new HashMap<>();
-        Map<String, Double> userItemCartDeleteMap = new HashMap<>();
-        Map<String, Double> userItemFollowMap = new HashMap<>();
-        Map<String, Double> itemUserClickMap = new HashMap<>();
-        Map<String, Double> itemUserDetailMap = new HashMap<>();
-        Map<String, Double> itemUserCartMap = new HashMap<>();
-        Map<String, Double> itemUserCartDeleteMap = new HashMap<>();
-        Map<String, Double> itemUserFollowMap = new HashMap<>();
+        Map<String, Map<String, Double>> userItemClickMap = new HashMap<>();
+        Map<String, Map<String, Double>> userItemDetailMap = new HashMap<>();
+        Map<String, Map<String, Double>> userItemCartMap = new HashMap<>();
+        Map<String, Map<String, Double>> userItemCartDeleteMap = new HashMap<>();
+        Map<String, Map<String, Double>> userItemFollowMap = new HashMap<>();
+        Map<String, Map<String, Double>> itemUserClickMap = new HashMap<>();
+        Map<String, Map<String, Double>> itemUserDetailMap = new HashMap<>();
+        Map<String, Map<String, Double>> itemUserCartMap = new HashMap<>();
+        Map<String, Map<String, Double>> itemUserCartDeleteMap = new HashMap<>();
+        Map<String, Map<String, Double>> itemUserFollowMap = new HashMap<>();
 
         for(int i = trainStartPeriod; i <= trainEndPeriod; i++) {
             int diff = labelPeriod - i;
             double decay = decayMap.get(diff);
+
+            Map<String, Map<String, Double>> feature = null;
             String userCountSql = "select user_id,log(count(if(click>0,1,null))+1) as click,log(count(if(detail>0,1,null))+1) as detail,log(count(if(cart>0,1,null))+1) as cart,log(count(if(cart_delete>0,1,null))+1) as cart_delete,log(count(if(follow>0,1,null))+1) as follow from " + tablename + " where action_period=" + i + " group by user_id";
-            Map<String, Map<String, Double>> feature = Features.feature(userCountSql, 0, "user_count_", decay, labelPeriod, i);
+            if(null == cache.get(userCountSql)){
+                feature = Features.feature(userCountSql, 0, "user_count_", decay, labelPeriod, i);
+                cache.put(userCountSql, feature);
+            }
+            else {
+                feature = (Map<String, Map<String, Double>>) cache.get(userCountSql);
+            }
             mergeMap(userCountFeature, feature);
 
             String userSumSql = "select user_id,log(sum(click)+1) as click,log(sum(detail>0)+1) as detail,log(sum(cart)+1) as cart,log(sum(cart_delete)+1) as cart_delete,log(sum(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by user_id";
-            feature = Features.feature(userSumSql, 0, "user_sum_", decay, labelPeriod, i);
+            if(null == cache.get(userSumSql)){
+                feature = Features.feature(userSumSql, 0, "user_sum_", decay, labelPeriod, i);
+                cache.put(userSumSql, feature);
+            }
+            else {
+                feature = (Map<String, Map<String, Double>>) cache.get(userSumSql);
+            }
             mergeMap(userSumFeature, feature);
 
             String userAvgSql = "select user_id,log(avg(click)+1) as click,log(avg(detail>0)+1) as detail,log(avg(cart)+1) as cart,log(avg(cart_delete)+1) as cart_delete,log(avg(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by user_id";
-            feature = Features.feature(userAvgSql, 0, "user_avg_", decay, labelPeriod, i);
+            if(null == cache.get(userAvgSql)){
+                feature = Features.feature(userAvgSql, 0, "user_avg_", decay, labelPeriod, i);
+                cache.put(userAvgSql, feature);
+            }
+            else {
+                feature = (Map<String, Map<String, Double>>) cache.get(userAvgSql);
+            }
             mergeMap(userAvgFeature, feature);
 
             String itemCountSql = "select sku_id,log(count(if(click>0,1,null))+1) as click,log(count(if(detail>0,1,null))+1) as detail,log(count(if(cart>0,1,null))+1) as cart,log(count(if(cart_delete>0,1,null))+1) as cart_delete,log(count(if(follow>0,1,null))+1) as follow from " + tablename + " where action_period=" + i + " group by sku_id";
-            feature = Features.feature(itemCountSql, 1, "item_count_", decay, labelPeriod, i);
+            if(null == cache.get(itemCountSql)){
+                feature = Features.feature(itemCountSql, 1, "item_count_", decay, labelPeriod, i);
+                cache.put(itemCountSql, feature);
+            }
+            else {
+                feature = (Map<String, Map<String, Double>>) cache.get(itemCountSql);
+            }
             mergeMap(itemCountFeature, feature);
 
             String itemSumSql = "select sku_id,log(sum(click)+1) as click,log(sum(detail>0)+1) as detail,log(sum(cart)+1) as cart,log(sum(cart_delete)+1) as cart_delete,log(sum(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by sku_id";
-            feature = Features.feature(itemSumSql, 1, "item_sum_", decay, labelPeriod, i);
+            if(null == cache.get(itemSumSql)){
+                feature = Features.feature(itemSumSql, 1, "item_sum_", decay, labelPeriod, i);
+                cache.put(itemSumSql, feature);
+            }
+            else {
+                feature = (Map<String, Map<String, Double>>) cache.get(itemSumSql);
+            }
             mergeMap(itemSumFeature, feature);
 
             String itemAvgSql = "select sku_id,log(avg(click)+1) as click,log(avg(detail>0)+1) as detail,log(avg(cart)+1) as cart,log(avg(cart_delete)+1) as cart_delete,log(avg(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by sku_id";
-            feature = Features.feature(itemAvgSql, 1, "item_avg_", decay, labelPeriod, i);
+            if(null == cache.get(itemAvgSql)){
+                feature = Features.feature(itemAvgSql, 1, "item_avg_", decay, labelPeriod, i);
+                cache.put(itemAvgSql, feature);
+            }
+            else {
+                feature = (Map<String, Map<String, Double>>) cache.get(itemAvgSql);
+            }
             mergeMap(itemAvgFeature, feature);
 
             String userItemCountSql = "select user_id,sku_id,log(count(if(click>0,1,null))+1) as click,log(count(if(detail>0,1,null))+1) as detail,log(count(if(cart>0,1,null))+1) as cart,log(count(if(cart_delete>0,1,null))+1) as cart_delete,log(count(if(follow>0,1,null))+1) as follow from " + tablename + " where action_period=" + i + " group by user_id,sku_id";
-            feature = Features.feature(userItemCountSql, 2, "user_item_count_", decay, labelPeriod, i);
+            if(null == cache.get(userItemCountSql)){
+                feature = Features.feature(userItemCountSql, 2, "user_item_count_", decay, labelPeriod, i);
+                cache.put(userItemCountSql, feature);
+            }
+            else {
+                feature = (Map<String, Map<String, Double>>) cache.get(userItemCountSql);
+            }
             mergeMap(userItemCountFeature, feature);
 
             String userItemSumSql = "select user_id,sku_id,log(sum(click)+1) as click,log(sum(detail>0)+1) as detail,log(sum(cart)+1) as cart,log(sum(cart_delete)+1) as cart_delete,log(sum(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by user_id,sku_id";
-            feature = Features.feature(userItemSumSql, 2, "user_item_sum_", decay, labelPeriod, i);
+            if(null == cache.get(userItemSumSql)){
+                feature = Features.feature(userItemSumSql, 2, "user_item_sum_", decay, labelPeriod, i);
+                cache.put(userItemSumSql, feature);
+            }
+            else {
+                feature = (Map<String, Map<String, Double>>) cache.get(userItemSumSql);
+            }
             mergeMap(userItemSumFeature, feature);
 
             String userItemAvgSql = "select user_id,sku_id,log(avg(click)+1) as click,log(avg(detail>0)+1) as detail,log(avg(cart)+1) as cart,log(avg(cart_delete)+1) as cart_delete,log(avg(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by user_id,sku_id";
-            feature = Features.feature(userItemAvgSql, 2, "user_item_avg_", decay, labelPeriod, i);
+            if(null == cache.get(userItemAvgSql)){
+                feature = Features.feature(userItemAvgSql, 2, "user_item_avg_", decay, labelPeriod, i);
+                cache.put(userItemAvgSql, feature);
+            }
+            else {
+                feature = (Map<String, Map<String, Double>>) cache.get(userItemAvgSql);
+            }
             mergeMap(userItemAvgFeature, feature);
 
-            Map<String, Double> userPopular = Popular.userPopular(tablename, labelPeriod, i);
-            log.info("user popular size: " + userPopular.size());
-            merge(userPopularMap, userPopular);
-
-            Map<String, Double> itemPopular = Popular.itemPopular(tablename, labelPeriod, i);
-            log.info("item popular size: " + itemPopular.size());
-            merge(itemPopularMap, itemPopular);
-
-            Map<String, Double> itemActionUserCount = Popular.itemActionUserCount(tablename, labelPeriod, i);
-            log.info("item action user size: " + itemActionUserCount.size());
-            merge(itemActionUserCountMap, itemActionUserCount);
-
-            String userItemClickSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where click>0 and action_period=" + i + " group by user_id";
-            Map<String, Double> userItemClick = ItemBuyUsers.itemUserCount(userItemClickSql, "user_id", labelPeriod, i);
-            merge(userItemClickMap, userItemClick);
-
-            String userItemDetailSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where detail>0 and action_period=" + i + " group by user_id";
-            Map<String, Double> userItemDetail = ItemBuyUsers.itemUserCount(userItemDetailSql, "user_id", labelPeriod, i);
-            merge(userItemDetailMap, userItemDetail);
-
-            String userItemCartSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where cart>0 and action_period=" + i + " group by user_id";
-            Map<String, Double> userItemCart = ItemBuyUsers.itemUserCount(userItemCartSql, "user_id", labelPeriod, i);
-            merge(userItemCartMap, userItemCart);
-
-            String userItemCartDeleteSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where cart_delete>0 and action_period=" + i + " group by user_id";
-            Map<String, Double> userItemCartDelete = ItemBuyUsers.itemUserCount(userItemCartDeleteSql, "user_id", labelPeriod, i);
-            merge(userItemCartDeleteMap, userItemCartDelete);
-
-            String userItemFollowSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where follow>0 and action_period=" + i + " group by user_id";
-            Map<String, Double> userItemFollow = ItemBuyUsers.itemUserCount(userItemFollowSql, "user_id", labelPeriod, i);
-            merge(userItemFollowMap, userItemFollow);
-
-            String itemUserClickSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where click >0 and action_period=" + i + " group by sku_id";
-            Map<String, Double> itemUserClick = ItemBuyUsers.itemUserCount(itemUserClickSql, "sku_id", labelPeriod, i);
-            merge(itemUserClickMap, itemUserClick);
-
-            String itemUserDetailSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where detail>0 and action_period=" + i + " group by sku_id";
-            Map<String, Double> itemUserDetail = ItemBuyUsers.itemUserCount(itemUserDetailSql, "sku_id", labelPeriod, i);
-            merge(itemUserDetailMap, itemUserDetail);
-
-            String itemUserCartSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where cart>0 and action_period=" + i + " group by sku_id";
-            Map<String, Double> itemUserCart = ItemBuyUsers.itemUserCount(itemUserCartSql, "sku_id", labelPeriod, i);
-            merge(itemUserCartMap, itemUserCart);
-
-            String itemUserCartDeleteSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where cart_delete>0 and action_period=" + i + " group by sku_id";
-            Map<String, Double> itemUserCartDelete = ItemBuyUsers.itemUserCount(itemUserCartDeleteSql, "sku_id", labelPeriod, i);
-            merge(itemUserCartDeleteMap, itemUserCartDelete);
-
-            String itemUserFollowSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where follow>0 and action_period=" + i + " group by sku_id";
-            Map<String, Double> itemUserFollow = ItemBuyUsers.itemUserCount(itemUserFollowSql, "sku_id", labelPeriod, i);
-            merge(itemUserFollowMap, itemUserFollow);
-
-            Map<String, Long> labelMap = new HashMap<>();
-            if (!isPredict) {
-                String labelSql = "select user_id,sku_id,count(1) as count from " + tablename + " where buy>0 and action_period=" + labelPeriod + " group by user_id,sku_id";
-                log.info("label sql: " + labelSql);
-                List<Map<String, Object>> labelResult = DBOperation.queryBySql(labelSql);
-                log.info("label size: " + labelResult.size());
-                for (Map<String, Object> row : labelResult) {
-                    String userId = String.valueOf(row.get("user_id"));
-                    String skuId = String.valueOf(row.get("sku_id"));
-                    long count = (long) row.get("count");
-
-                    labelMap.put(userId + "_" + skuId, count);
-                }
+            //////////////////////////////////////////////////////
+            Map<String, Map<String, Double>> userPopular = null;
+            if(null == cache.get("user_popular_" + i)){
+                userPopular = Popular.userPopular(tablename, labelPeriod, i, "user_popular_");
+                log.info("user popular size: " + userPopular.size());
+                cache.put("user_popular_" + i, userPopular);
             }
+            else {
+                userPopular = (Map<String, Map<String, Double>>) cache.get("user_popular_" + i);
+            }
+            mergeMap(userPopularMap, userPopular);
 
-            int positive = 0;
-            int negative = 0;
-            String dataSql = "select user_id,sku_id,group_concat(model_id separator '_') as model_id from " + tablename + " where action_period=" + i + " group by user_id,sku_id";
-            log.info("data sql: " + dataSql);
-            List<Map<String, Object>> infoResult = DBOperation.queryBySql(dataSql);
-            log.info("data size: " + infoResult.size());
-            for (Map<String, Object> row : infoResult) {
-                Map<String, Object> line = new HashMap<>();
-                for (int modelId : modelIds) {
-                    line.put("model_" + modelId, 0);
-                }
+            Map<String, Map<String, Double>> itemPopular = null;
+            if(null == cache.get("item_popular_" + i)){
+                itemPopular = Popular.itemPopular(tablename, labelPeriod, i, "item_popular_");
+                log.info("item popular size: " + itemPopular.size());
+                cache.put("item_popular_" + i, itemPopular);
+            }
+            else {
+                itemPopular = (Map<String, Map<String, Double>>) cache.get("item_popular_" + i);
+            }
+            mergeMap(itemPopularMap, itemPopular);
 
+            Map<String, Map<String, Double>> itemActionUserCount = null;
+            if(null == cache.get("item_action_user_" + i)){
+                itemActionUserCount = Popular.itemActionUserCount(tablename, labelPeriod, i, "item_action_user_");
+                log.info("item action user size: " + itemActionUserCount.size());
+                cache.put("item_action_user_" + i, itemActionUserCount);
+            }
+            else {
+                itemActionUserCount = (Map<String, Map<String, Double>>) cache.get("item_action_user_" + i);
+            }
+            mergeMap(itemActionUserCountMap, itemActionUserCount);
+
+            Map<String, Map<String, Double>> userItemClick = null;
+            String userItemClickSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where click>0 and action_period=" + i + " group by user_id";
+            if(null == cache.get(userItemClickSql)){
+                userItemClick = ItemBuyUsers.itemUserCount(userItemClickSql, "user_id", labelPeriod, i, "user_distinct_item_click_");
+                cache.put(userItemClickSql, userItemClick);
+            }
+            else {
+                userItemClick = (Map<String, Map<String, Double>>) cache.get(userItemClickSql);
+            }
+            mergeMap(userItemClickMap, userItemClick);
+
+            Map<String, Map<String, Double>> userItemDetail = null;
+            String userItemDetailSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where detail>0 and action_period=" + i + " group by user_id";
+            if(null == cache.get(userItemDetailSql)){
+                userItemDetail = ItemBuyUsers.itemUserCount(userItemDetailSql, "user_id", labelPeriod, i, "user_distinct_item_detail_");
+                cache.put(userItemDetailSql, userItemDetail);
+            }
+            else {
+                userItemDetail = (Map<String, Map<String, Double>>) cache.get(userItemDetailSql);
+            }
+            mergeMap(userItemDetailMap, userItemDetail);
+
+            Map<String, Map<String, Double>> userItemCart = null;
+            String userItemCartSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where cart>0 and action_period=" + i + " group by user_id";
+            if(null == cache.get(userItemCartSql)){
+                userItemCart = ItemBuyUsers.itemUserCount(userItemCartSql, "user_id", labelPeriod, i, "user_distinct_item_cart_");
+                cache.put(userItemCartSql, userItemCart);
+            }
+            else {
+                userItemCart = (Map<String, Map<String, Double>>) cache.get(userItemCartSql);
+            }
+            mergeMap(userItemCartMap, userItemCart);
+
+            Map<String, Map<String, Double>> userItemCartDelete = null;
+            String userItemCartDeleteSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where cart_delete>0 and action_period=" + i + " group by user_id";
+            if(null == cache.get(userItemCartDeleteSql)){
+                userItemCartDelete = ItemBuyUsers.itemUserCount(userItemCartDeleteSql, "user_id", labelPeriod, i, "user_distinct_item_cart_delete_");
+                cache.put(userItemCartDeleteSql, userItemCartDelete);
+            }
+            else {
+                userItemCartDelete = (Map<String, Map<String, Double>>) cache.get(userItemCartDeleteSql);
+            }
+            mergeMap(userItemCartDeleteMap, userItemCartDelete);
+
+            Map<String, Map<String, Double>> userItemFollow = null;
+            String userItemFollowSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where follow>0 and action_period=" + i + " group by user_id";
+            if(null == cache.get(userItemFollowSql)){
+                userItemFollow = ItemBuyUsers.itemUserCount(userItemFollowSql, "user_id", labelPeriod, i, "user_distinct_item_follow_");
+                cache.put(userItemFollowSql, userItemFollow);
+            }
+            else {
+                userItemFollow = (Map<String, Map<String, Double>>) cache.get(userItemFollowSql);
+            }
+            mergeMap(userItemFollowMap, userItemFollow);
+
+            Map<String, Map<String, Double>> itemUserClick = null;
+            String itemUserClickSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where click >0 and action_period=" + i + " group by sku_id";
+            if(null == cache.get(itemUserClickSql)){
+                itemUserClick = ItemBuyUsers.itemUserCount(itemUserClickSql, "sku_id", labelPeriod, i, "item_distinct_user_click_");
+                cache.put(itemUserClickSql, itemUserClick);
+            }
+            else {
+                itemUserClick = (Map<String, Map<String, Double>>) cache.get(itemUserClickSql);
+            }
+            mergeMap(itemUserClickMap, itemUserClick);
+
+            Map<String, Map<String, Double>> itemUserDetail = null;
+            String itemUserDetailSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where detail>0 and action_period=" + i + " group by sku_id";
+            if(null == cache.get(itemUserDetailSql)){
+                itemUserDetail = ItemBuyUsers.itemUserCount(itemUserDetailSql, "sku_id", labelPeriod, i, "item_distinct_user_detail_");
+                cache.put(itemUserDetailSql, itemUserDetail);
+            }
+            else {
+                itemUserDetail = (Map<String, Map<String, Double>>) cache.get(itemUserDetailSql);
+            }
+            mergeMap(itemUserDetailMap, itemUserDetail);
+
+            Map<String, Map<String, Double>> itemUserCart = null;
+            String itemUserCartSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where cart>0 and action_period=" + i + " group by sku_id";
+            if(null == cache.get(itemUserCartSql)){
+                itemUserCart = ItemBuyUsers.itemUserCount(itemUserCartSql, "sku_id", labelPeriod, i, "item_distinct_user_cart_");
+                cache.put(itemUserCartSql, itemUserCart);
+            }
+            else {
+                itemUserCart = (Map<String, Map<String, Double>>) cache.get(itemUserCartSql);
+            }
+            mergeMap(itemUserCartMap, itemUserCart);
+
+            Map<String, Map<String, Double>> itemUserCartDelete = null;
+            String itemUserCartDeleteSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where cart_delete>0 and action_period=" + i + " group by sku_id";
+            if(null == cache.get(itemUserCartDeleteSql)){
+                itemUserCartDelete = ItemBuyUsers.itemUserCount(itemUserCartDeleteSql, "sku_id", labelPeriod, i, "item_distinct_user_cart_delete_");
+                cache.put(itemUserCartDeleteSql, itemUserCartDelete);
+            }
+            else {
+                itemUserCartDelete = (Map<String, Map<String, Double>>) cache.get(itemUserCartDeleteSql);
+            }
+            mergeMap(itemUserCartDeleteMap, itemUserCartDelete);
+
+            Map<String, Map<String, Double>> itemUserFollow = null;
+            String itemUserFollowSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where follow>0 and action_period=" + i + " group by sku_id";
+            if(null == cache.get(itemUserFollowSql)){
+                itemUserFollow = ItemBuyUsers.itemUserCount(itemUserFollowSql, "sku_id", labelPeriod, i, "item_distinct_user_follow_");
+                cache.put(itemUserFollowSql, itemUserFollow);
+            }
+            else {
+                itemUserFollow = (Map<String, Map<String, Double>>) cache.get(itemUserFollowSql);
+            }
+            mergeMap(itemUserFollowMap, itemUserFollow);
+        }
+
+        Map<String, Long> labelMap = new HashMap<>();
+        if (!isPredict) {
+            String labelSql = "select user_id,sku_id,count(1) as count from " + tablename + " where buy>0 and action_period=" + labelPeriod + " group by user_id,sku_id";
+            log.info("label sql: " + labelSql);
+            List<Map<String, Object>> labelResult = null;
+            if(null == cache.get(labelSql)){
+                labelResult = DBOperation.queryBySql(labelSql);
+                cache.put(labelSql, labelResult);
+            }
+            else {
+                labelResult = (List<Map<String, Object>>) cache.get(labelSql);
+            }
+            log.info("label size: " + labelResult.size());
+            for (Map<String, Object> row : labelResult) {
                 String userId = String.valueOf(row.get("user_id"));
                 String skuId = String.valueOf(row.get("sku_id"));
+                long count = (long) row.get("count");
 
-                Map<String, Object> userInfo = userInfos.get(userId);
-                Map<String, Object> itemInfo = itemInfos.get(skuId);
-                Map<String, Object> commentInfo = commentInfos.get(skuId);
+                labelMap.put(userId + "_" + skuId, count);
+            }
+        }
 
-                int age = (int) userInfo.get("age");
-                int sex = (int) userInfo.get("sex");
-                int userLevel = (int) userInfo.get("user_level");
-                int attr1 = (int) itemInfo.get("attr1");
-                int attr2 = (int) itemInfo.get("attr2");
-                int attr3 = (int) itemInfo.get("attr3");
-                int cate = (int) itemInfo.get("cate");
-                int brand = (int) itemInfo.get("brand");
+        String periods = getPeriod(trainStartPeriod, trainEndPeriod);
 
-                int commentNum = 0;
-                int hasBadComment = 0;
-                double badCommentRate = 0d;
-                if (null != commentInfo) {
-                    commentNum = (int) commentInfo.get("comment_num");
-                    hasBadComment = (int) commentInfo.get("has_bad_comment");
-                    badCommentRate = (double) commentInfo.get("bad_comment_rate");
-                }
+        int positive = 0;
+        int negative = 0;
+        String dataSql = "select user_id,sku_id,group_concat(model_id separator '_') as model_id from " + tablename + " where action_period in(" + periods + ") group by user_id,sku_id";
+        log.info("data sql: " + dataSql);
+        List<Map<String, Object>> infoResult = null;
+        if(null == cache.get(dataSql)){
+            infoResult = DBOperation.queryBySql(dataSql);
+            cache.put(dataSql, infoResult);
+        }
+        else {
+            infoResult = (List<Map<String, Object>>) cache.get(dataSql);
+        }
+        log.info("data size: " + infoResult.size());
+        for (Map<String, Object> row : infoResult) {
+            Map<String, Object> line = new HashMap<>();
+            for (int modelId : modelIds) {
+                line.put("model_" + modelId, 0);
+            }
 
-                line.put("user_id", userId);
-                line.put("sku_id", skuId);
-                line.put("age", age);
-                line.put("sex", sex);
-                line.put("user_level", userLevel);
-                line.put("attr1", attr1);
-                line.put("attr2", attr2);
-                line.put("attr3", attr3);
-                line.put("cate", cate);
-                line.put("brand", brand);
-                line.put("comment_num", commentNum);
-                line.put("has_bad_comment", hasBadComment);
-                line.put("bad_comment_rate", badCommentRate);
+            String userId = String.valueOf(row.get("user_id"));
+            String skuId = String.valueOf(row.get("sku_id"));
 
-                Map<String, Integer> modelIdMap = new HashMap<>();
-                String modelIdStr = (String) row.get("model_id");
-                if (StringUtils.isNotBlank(modelIdStr)) {
-                    String[] parts = modelIdStr.split("_");
-                    for (String part : parts) {
-                        if (StringUtils.isNotBlank(part) && !"null".equalsIgnoreCase(part)) {
-                            JSONObject json = JSONObject.parseObject(part);
-                            for (String key : json.keySet()) {
-                                if (!modelIdMap.containsKey(key)) {
-                                    modelIdMap.put(key, 0);
-                                }
-                                modelIdMap.put(key, modelIdMap.get(key) + json.getIntValue(key));
+            Map<String, Object> userInfo = userInfos.get(userId);
+            Map<String, Object> itemInfo = itemInfos.get(skuId);
+            Map<String, Object> commentInfo = commentInfos.get(skuId);
+
+            int age = (int) userInfo.get("age");
+            int sex = (int) userInfo.get("sex");
+            int userLevel = (int) userInfo.get("user_level");
+            int attr1 = (int) itemInfo.get("attr1");
+            int attr2 = (int) itemInfo.get("attr2");
+            int attr3 = (int) itemInfo.get("attr3");
+            int cate = (int) itemInfo.get("cate");
+            int brand = (int) itemInfo.get("brand");
+
+            int commentNum = 0;
+            int hasBadComment = 0;
+            double badCommentRate = 0d;
+            if (null != commentInfo) {
+                commentNum = (int) commentInfo.get("comment_num");
+                hasBadComment = (int) commentInfo.get("has_bad_comment");
+                badCommentRate = (double) commentInfo.get("bad_comment_rate");
+            }
+
+            line.put("user_id", userId);
+            line.put("sku_id", skuId);
+            line.put("age", age);
+            line.put("sex", sex);
+            line.put("user_level", userLevel);
+            line.put("attr1", attr1);
+            line.put("attr2", attr2);
+            line.put("attr3", attr3);
+            line.put("cate", cate);
+            line.put("brand", brand);
+            line.put("comment_num", commentNum);
+            line.put("has_bad_comment", hasBadComment);
+            line.put("bad_comment_rate", badCommentRate);
+
+            Map<String, Integer> modelIdMap = new HashMap<>();
+            String modelIdStr = (String) row.get("model_id");
+            if (StringUtils.isNotBlank(modelIdStr)) {
+                String[] parts = modelIdStr.split("_");
+                for (String part : parts) {
+                    if (StringUtils.isNotBlank(part) && !"null".equalsIgnoreCase(part)) {
+                        JSONObject json = JSONObject.parseObject(part);
+                        for (String key : json.keySet()) {
+                            if (!modelIdMap.containsKey(key)) {
+                                modelIdMap.put(key, 0);
                             }
+                            modelIdMap.put(key, modelIdMap.get(key) + json.getIntValue(key));
                         }
                     }
-
-                    for (Map.Entry<String, Integer> entry : modelIdMap.entrySet()) {
-                        line.put("model_" + entry.getKey(), entry.getValue());
-                    }
                 }
 
-                setFeature(line, userCountFeature.get(userId));
-                setFeature(line, userSumFeature.get(userId));
-                setFeature(line, userAvgFeature.get(userId));
-                setFeature(line, itemCountFeature.get(skuId));
-                setFeature(line, itemSumFeature.get(skuId));
-                setFeature(line, itemAvgFeature.get(skuId));
-                setFeature(line, userItemCountFeature.get(userId + "_" + skuId));
-                setFeature(line, userItemSumFeature.get(userId + "_" + skuId));
-                setFeature(line, userItemAvgFeature.get(userId + "_" + skuId));
-
-                line.put("user_popular", String.valueOf(null == userPopular.get(userId) ? 0 : userPopular.get(userId)));
-                line.put("item_popular", String.valueOf(null == itemPopular.get(skuId) ? 0 : itemPopular.get(skuId)));
-                line.put("item_action_user", String.valueOf(null == itemActionUserCount.get(skuId) ? 0 : itemActionUserCount.get(skuId)));
-                line.put("user_distinct_item_click", String.valueOf(null == userItemClick.get(userId) ? 0 : userItemClick.get(userId)));
-                line.put("user_distinct_item_detail", String.valueOf(null == userItemDetail.get(userId) ? 0 : userItemDetail.get(userId)));
-                line.put("user_distinct_item_cart", String.valueOf(null == userItemCart.get(userId) ? 0 : userItemCart.get(userId)));
-                line.put("user_distinct_item_cart_delete", String.valueOf(null == userItemCartDelete.get(userId) ? 0 : userItemCartDelete.get(userId)));
-                line.put("user_distinct_item_follow", String.valueOf(null == userItemFollow.get(userId) ? 0 : userItemFollow.get(userId)));
-                line.put("item_distinct_user_click", String.valueOf(null == itemUserClick.get(skuId) ? 0 : itemUserClick.get(skuId)));
-                line.put("item_distinct_user_detail", String.valueOf(null == itemUserDetail.get(skuId) ? 0 : itemUserDetail.get(skuId)));
-                line.put("item_distinct_user_cart", String.valueOf(null == itemUserCart.get(skuId) ? 0 : itemUserCart.get(skuId)));
-                line.put("item_distinct_user_cart_delete", String.valueOf(null == itemUserCartDelete.get(skuId) ? 0 : itemUserCartDelete.get(skuId)));
-                line.put("item_distinct_user_follow", String.valueOf(null == itemUserFollow.get(skuId) ? 0 : itemUserFollow.get(skuId)));
-
-                if (!isPredict) {
-                    Long count = labelMap.get(userId + "_" + skuId);
-                    if (null == count) {
-                        line.put("target", 1);
-                        ++negative;
-                    } else {
-                        line.put("target", 0);
-                        ++positive;
-                    }
+                for (Map.Entry<String, Integer> entry : modelIdMap.entrySet()) {
+                    line.put("model_" + entry.getKey(), entry.getValue());
                 }
-
-                lines.add(line);
             }
 
-            log.info("positive: " + positive);
-            log.info("negative: " + negative);
+            setFeature(line, userCountFeature.get(userId));
+            setFeature(line, userSumFeature.get(userId));
+            setFeature(line, userAvgFeature.get(userId));
+            setFeature(line, itemCountFeature.get(skuId));
+            setFeature(line, itemSumFeature.get(skuId));
+            setFeature(line, itemAvgFeature.get(skuId));
+            setFeature(line, userItemCountFeature.get(userId + "_" + skuId));
+            setFeature(line, userItemSumFeature.get(userId + "_" + skuId));
+            setFeature(line, userItemAvgFeature.get(userId + "_" + skuId));
 
-            CSVWriter writer = new CSVWriter(new FileWriter(path + filename), ',', '\0');
-            Map<String, Object> map = lines.get(0);
-            writer.writeNext(map.keySet().toArray(new String[0]));
-            for (Map<String, Object> line : lines) {
-                String[] array = new String[map.keySet().size()];
-                int idx = 0;
-                for(Object obj : line.values()){
-                    array[idx] = String.valueOf(obj);
-                    ++idx;
+            setFeature(line, userPopularMap.get(userId));
+            setFeature(line, itemPopularMap.get(skuId));
+            setFeature(line, itemActionUserCountMap.get(skuId));
+            setFeature(line, userItemClickMap.get(userId));
+            setFeature(line, userItemDetailMap.get(userId));
+            setFeature(line, userItemCartMap.get(userId));
+            setFeature(line, userItemCartDeleteMap.get(userId));
+            setFeature(line, userItemFollowMap.get(userId));
+            setFeature(line, itemUserClickMap.get(skuId));
+            setFeature(line, itemUserDetailMap.get(skuId));
+            setFeature(line, itemUserCartMap.get(skuId));
+            setFeature(line, itemUserCartDeleteMap.get(skuId));
+            setFeature(line, itemUserFollowMap.get(skuId));
+
+            if (!isPredict) {
+                Long count = labelMap.get(userId + "_" + skuId);
+                if (null == count) {
+                    line.put("target", 1);
+                    ++negative;
+                } else {
+                    line.put("target", 0);
+                    ++positive;
                 }
-                writer.writeNext(array);
             }
 
-            writer.close();
+            lines.add(line);
         }
+
+        log.info("positive: " + positive);
+        log.info("negative: " + negative);
+
+        CSVWriter writer = new CSVWriter(new FileWriter(path + "/" + filename), ',', '\0');
+        Map<String, Object> max = getMax(lines);
+        writer.writeNext(max.keySet().toArray(new String[0]));
+        for (Map<String, Object> line : lines) {
+            String[] array = new String[max.keySet().size()];
+            int idx = 0;
+            for(String key : max.keySet()){
+                array[idx] = String.valueOf(null == line.get(key) ? 0 : line.get(key));
+                ++idx;
+            }
+
+            writer.writeNext(array);
+        }
+
+        writer.close();
     }
 
     private static void setFeature(Map<String, Object> line, Map<String, Double> values){
-        for(Entry<String, Double> entry : values.entrySet()){
-            line.put(entry.getKey(), entry.getValue());
+        if(null != values){
+            for(Entry<String, Double> entry : values.entrySet()){
+                line.put(entry.getKey(), entry.getValue());
+            }
         }
     }
 
@@ -363,5 +533,27 @@ public class AllFeaturesForDL {
                 totalFeatureMap.put(key, value);
             }
         }
+    }
+
+    private static  String getPeriod(int start, int end){
+        String s = "";
+        for(int i = start; i <= end; i++){
+            s += i + ",";
+        }
+
+        s = StringUtils.removeEnd(s, ",");
+
+        return s;
+    }
+
+    private static Map<String, Object> getMax(List<Map<String, Object>> lines){
+        Map<String, Object> max = lines.get(0);
+        for(Map<String, Object> line : lines){
+            if(line.size() > max.size()){
+                max = line;
+            }
+        }
+
+        return max;
     }
 }

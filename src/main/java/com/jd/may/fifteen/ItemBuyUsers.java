@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 public class ItemBuyUsers {
     private static final Logger log = Logger.getLogger(ItemBuyUsers.class);
 
-    public static Map<String, Double> itemUserCount(String sql, String key, int labelPeriod, int actionPeriod){
-        Map<String, Double> map = new HashMap<>();
+    public static Map<String, Map<String, Double>> itemUserCount(String sql, String key, int labelPeriod, int actionPeriod, String mapKey){
+        Map<String, Map<String, Double>> retMap = new HashMap<>();
         log.info("sql: " + sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(sql);
         log.info("size: " + result.size());
@@ -22,10 +22,12 @@ public class ItemBuyUsers {
             String id = String.valueOf(row.get(key));
             double count = (double) row.get("count");
 
-            map.put(id + "_" + labelPeriod + "_" + actionPeriod, count);
+            Map<String, Double> map = new HashMap<>();
+            map.put(mapKey + labelPeriod + "_" + actionPeriod, count);
+            retMap.put(id, map);
         }
 
-        return map;
+        return retMap;
     }
 }
 
