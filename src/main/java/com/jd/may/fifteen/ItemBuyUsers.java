@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 public class ItemBuyUsers {
     private static final Logger log = Logger.getLogger(ItemBuyUsers.class);
 
-    public static Map<String, Double> itemUserCount(String sql, String key){
+    public static Map<String, Double> itemUserCount(String sql, String key, int labelPeriod, int actionPeriod){
         Map<String, Double> map = new HashMap<>();
         log.info("sql: " + sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(sql);
@@ -22,7 +22,7 @@ public class ItemBuyUsers {
             String id = String.valueOf(row.get(key));
             double count = (double) row.get("count");
 
-            map.put(id, count);
+            map.put(id + "_" + labelPeriod + "_" + actionPeriod, count);
         }
 
         return map;

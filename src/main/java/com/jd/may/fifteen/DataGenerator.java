@@ -1,5 +1,7 @@
 package com.jd.may.fifteen;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -66,8 +68,35 @@ public class DataGenerator {
 //        AllFeaturesForGBM.features("predict_GBM.csv", "user_action_3", true);
 //        AllFeaturesForGBM.features("data_GBM.csv", "user_action_2", false);
 //        AllFeaturesForDL.features("predict_DL.csv", "user_action_3", true);
-        AllFeaturesForDL.features("data_DL.csv", "user_action_2", false);
+//        AllFeaturesForDL.features("data_DL.csv", "user_action_2", false);
 
+        String path = "/home/wanghl/jd_contest/0516/";
+        for(int i = 1; i < 15; i++){
+            for(int j = 1; j < 15 && (i + j) <= 15; j++){
+                System.out.println(i + ": " + j + ": " + (j + 1) + "--->" + (j + i));
+                path += i + "/";
+                File file = new File(path);
+                if(!file.exists()){
+                    file.mkdirs();
+                }
+                String filename = "data_DL_" + i + "_" + (j + 1) + "_" + (j + i) + ".csv";
+                AllFeaturesForDL.features(filename, j, (j + 1), (j + i), "user_action_2", false, file.getAbsolutePath());
+                System.out.println("--------------------------------------------------------------------------------------------------------------------------");
+            }
+        }
+
+        /*for(int j = 1; j <= 15 && (0 + j) <= 15; j++){
+            System.out.println(0 + ": " + j + ": " + (1) + "--->" + (j));
+            path += j + "/";
+            File file = new File(path);
+            if(!file.exists()){
+                file.mkdirs();
+            }
+            String filename = "predict_DL_" + (1) + "_" + (j) + ".csv";
+            System.out.println(filename);
+            AllFeaturesForDL.features(filename, -1, 1, j, "user_action_3", false, file.getAbsolutePath());
+            System.out.println("--------------------------------------------------------------------------------------------------------------------------");
+        }*/
     }
 }
 

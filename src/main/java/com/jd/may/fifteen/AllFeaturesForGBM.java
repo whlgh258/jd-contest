@@ -176,7 +176,7 @@ public class AllFeaturesForGBM {
     public static List<String[]> features(String filename, String tablename, boolean isPredict) throws Exception{
         List<String[]> lines = new ArrayList<>();
 
-        Map<String,Map<String, Object>> userInfos = new HashMap<>();
+        /*Map<String,Map<String, Object>> userInfos = new HashMap<>();
         String userInfoSql = "select user_id,sku_id,max(age) as age,max(sex) as sex,max(user_level) as user_level,max(attr1) as attr1,max(attr2) as attr2,max(attr3) as attr3,max(cate) as cate,max(brand) as brand,max(comment_num) as comment_num,max(has_bad_comment) as has_bad_comment,max(bad_comment_rate) as bad_comment_rate from " + tablename + " group by user_id,sku_id";
         log.info("user info sql: " + userInfoSql);
         List<Map<String, Object>> result = DBOperation.queryBySql(userInfoSql);
@@ -498,7 +498,7 @@ public class AllFeaturesForGBM {
         }
 
         writer.writeAll(lines);
-        writer.close();
+        writer.close();*/
 
         return lines;
     }
