@@ -122,6 +122,7 @@ public class AllFeaturesForDL {
             else {
                 feature = (Map<String, Map<String, Double>>) cache.get(userCountSql);
             }
+            log.info("trainPeriod: " + i + ", user count size: " + feature.size());
             mergeMap(userCountFeature, feature);
 
             String userSumSql = "select user_id,log(sum(click)+1) as click,log(sum(detail>0)+1) as detail,log(sum(cart)+1) as cart,log(sum(cart_delete)+1) as cart_delete,log(sum(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by user_id";
@@ -132,6 +133,7 @@ public class AllFeaturesForDL {
             else {
                 feature = (Map<String, Map<String, Double>>) cache.get(userSumSql);
             }
+            log.info("trainPeriod: " + i + ", user sum size: " + feature.size());
             mergeMap(userSumFeature, feature);
 
             String userAvgSql = "select user_id,log(avg(click)+1) as click,log(avg(detail>0)+1) as detail,log(avg(cart)+1) as cart,log(avg(cart_delete)+1) as cart_delete,log(avg(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by user_id";
@@ -142,6 +144,7 @@ public class AllFeaturesForDL {
             else {
                 feature = (Map<String, Map<String, Double>>) cache.get(userAvgSql);
             }
+            log.info("trainPeriod: " + i + ", user avg size: " + feature.size());
             mergeMap(userAvgFeature, feature);
 
             String itemCountSql = "select sku_id,log(count(if(click>0,1,null))+1) as click,log(count(if(detail>0,1,null))+1) as detail,log(count(if(cart>0,1,null))+1) as cart,log(count(if(cart_delete>0,1,null))+1) as cart_delete,log(count(if(follow>0,1,null))+1) as follow from " + tablename + " where action_period=" + i + " group by sku_id";
@@ -152,6 +155,7 @@ public class AllFeaturesForDL {
             else {
                 feature = (Map<String, Map<String, Double>>) cache.get(itemCountSql);
             }
+            log.info("trainPeriod: " + i + ", item count size: " + feature.size());
             mergeMap(itemCountFeature, feature);
 
             String itemSumSql = "select sku_id,log(sum(click)+1) as click,log(sum(detail>0)+1) as detail,log(sum(cart)+1) as cart,log(sum(cart_delete)+1) as cart_delete,log(sum(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by sku_id";
@@ -162,6 +166,7 @@ public class AllFeaturesForDL {
             else {
                 feature = (Map<String, Map<String, Double>>) cache.get(itemSumSql);
             }
+            log.info("trainPeriod: " + i + ", item sum size: " + feature.size());
             mergeMap(itemSumFeature, feature);
 
             String itemAvgSql = "select sku_id,log(avg(click)+1) as click,log(avg(detail>0)+1) as detail,log(avg(cart)+1) as cart,log(avg(cart_delete)+1) as cart_delete,log(avg(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by sku_id";
@@ -172,6 +177,7 @@ public class AllFeaturesForDL {
             else {
                 feature = (Map<String, Map<String, Double>>) cache.get(itemAvgSql);
             }
+            log.info("trainPeriod: " + i + ", item avg size: " + feature.size());
             mergeMap(itemAvgFeature, feature);
 
             String userItemCountSql = "select user_id,sku_id,log(count(if(click>0,1,null))+1) as click,log(count(if(detail>0,1,null))+1) as detail,log(count(if(cart>0,1,null))+1) as cart,log(count(if(cart_delete>0,1,null))+1) as cart_delete,log(count(if(follow>0,1,null))+1) as follow from " + tablename + " where action_period=" + i + " group by user_id,sku_id";
@@ -182,6 +188,7 @@ public class AllFeaturesForDL {
             else {
                 feature = (Map<String, Map<String, Double>>) cache.get(userItemCountSql);
             }
+            log.info("trainPeriod: " + i + ", user item count size: " + feature.size());
             mergeMap(userItemCountFeature, feature);
 
             String userItemSumSql = "select user_id,sku_id,log(sum(click)+1) as click,log(sum(detail>0)+1) as detail,log(sum(cart)+1) as cart,log(sum(cart_delete)+1) as cart_delete,log(sum(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by user_id,sku_id";
@@ -192,6 +199,7 @@ public class AllFeaturesForDL {
             else {
                 feature = (Map<String, Map<String, Double>>) cache.get(userItemSumSql);
             }
+            log.info("trainPeriod: " + i + ", user item sum size: " + feature.size());
             mergeMap(userItemSumFeature, feature);
 
             String userItemAvgSql = "select user_id,sku_id,log(avg(click)+1) as click,log(avg(detail>0)+1) as detail,log(avg(cart)+1) as cart,log(avg(cart_delete)+1) as cart_delete,log(avg(follow)+1) as follow from " + tablename + " where action_period=" + i + " group by user_id,sku_id";
@@ -202,6 +210,7 @@ public class AllFeaturesForDL {
             else {
                 feature = (Map<String, Map<String, Double>>) cache.get(userItemAvgSql);
             }
+            log.info("trainPeriod: " + i + ", user item avg size: " + feature.size());
             mergeMap(userItemAvgFeature, feature);
 
             //////////////////////////////////////////////////////
@@ -214,6 +223,7 @@ public class AllFeaturesForDL {
             else {
                 userPopular = (Map<String, Map<String, Double>>) cache.get("user_popular_" + i);
             }
+            log.info("trainPeriod: " + i + ", user popular size: " + userPopular.size());
             mergeMap(userPopularMap, userPopular);
 
             Map<String, Map<String, Double>> itemPopular = null;
@@ -225,6 +235,7 @@ public class AllFeaturesForDL {
             else {
                 itemPopular = (Map<String, Map<String, Double>>) cache.get("item_popular_" + i);
             }
+            log.info("trainPeriod: " + i + ", item popular size: " + itemPopular.size());
             mergeMap(itemPopularMap, itemPopular);
 
             Map<String, Map<String, Double>> itemActionUserCount = null;
@@ -236,6 +247,7 @@ public class AllFeaturesForDL {
             else {
                 itemActionUserCount = (Map<String, Map<String, Double>>) cache.get("item_action_user_" + i);
             }
+            log.info("trainPeriod: " + i + ", item action user size: " + itemActionUserCount.size());
             mergeMap(itemActionUserCountMap, itemActionUserCount);
 
             Map<String, Map<String, Double>> userItemClick = null;
@@ -247,6 +259,7 @@ public class AllFeaturesForDL {
             else {
                 userItemClick = (Map<String, Map<String, Double>>) cache.get(userItemClickSql);
             }
+            log.info("trainPeriod: " + i + ", user item click size: " + userItemClick.size());
             mergeMap(userItemClickMap, userItemClick);
 
             Map<String, Map<String, Double>> userItemDetail = null;
@@ -258,6 +271,7 @@ public class AllFeaturesForDL {
             else {
                 userItemDetail = (Map<String, Map<String, Double>>) cache.get(userItemDetailSql);
             }
+            log.info("trainPeriod: " + i + ", user item detail size: " + userItemDetail.size());
             mergeMap(userItemDetailMap, userItemDetail);
 
             Map<String, Map<String, Double>> userItemCart = null;
@@ -269,6 +283,7 @@ public class AllFeaturesForDL {
             else {
                 userItemCart = (Map<String, Map<String, Double>>) cache.get(userItemCartSql);
             }
+            log.info("trainPeriod: " + i + ", user item cart size: " + userItemCart.size());
             mergeMap(userItemCartMap, userItemCart);
 
             Map<String, Map<String, Double>> userItemCartDelete = null;
@@ -280,6 +295,7 @@ public class AllFeaturesForDL {
             else {
                 userItemCartDelete = (Map<String, Map<String, Double>>) cache.get(userItemCartDeleteSql);
             }
+            log.info("trainPeriod: " + i + ", user item cart delete size: " + userItemCartDelete.size());
             mergeMap(userItemCartDeleteMap, userItemCartDelete);
 
             Map<String, Map<String, Double>> userItemFollow = null;
@@ -291,6 +307,7 @@ public class AllFeaturesForDL {
             else {
                 userItemFollow = (Map<String, Map<String, Double>>) cache.get(userItemFollowSql);
             }
+            log.info("trainPeriod: " + i + ", user item follow size: " + userItemFollow.size());
             mergeMap(userItemFollowMap, userItemFollow);
 
             Map<String, Map<String, Double>> itemUserClick = null;
@@ -302,6 +319,7 @@ public class AllFeaturesForDL {
             else {
                 itemUserClick = (Map<String, Map<String, Double>>) cache.get(itemUserClickSql);
             }
+            log.info("trainPeriod: " + i + ", item user click size: " + itemUserClick.size());
             mergeMap(itemUserClickMap, itemUserClick);
 
             Map<String, Map<String, Double>> itemUserDetail = null;
@@ -313,6 +331,7 @@ public class AllFeaturesForDL {
             else {
                 itemUserDetail = (Map<String, Map<String, Double>>) cache.get(itemUserDetailSql);
             }
+            log.info("trainPeriod: " + i + ", item user detail size: " + itemUserDetail.size());
             mergeMap(itemUserDetailMap, itemUserDetail);
 
             Map<String, Map<String, Double>> itemUserCart = null;
@@ -324,6 +343,7 @@ public class AllFeaturesForDL {
             else {
                 itemUserCart = (Map<String, Map<String, Double>>) cache.get(itemUserCartSql);
             }
+            log.info("trainPeriod: " + i + ", item user cart size: " + itemUserCart.size());
             mergeMap(itemUserCartMap, itemUserCart);
 
             Map<String, Map<String, Double>> itemUserCartDelete = null;
@@ -335,6 +355,7 @@ public class AllFeaturesForDL {
             else {
                 itemUserCartDelete = (Map<String, Map<String, Double>>) cache.get(itemUserCartDeleteSql);
             }
+            log.info("trainPeriod: " + i + ", item user cart delete size: " + itemUserCartDelete.size());
             mergeMap(itemUserCartDeleteMap, itemUserCartDelete);
 
             Map<String, Map<String, Double>> itemUserFollow = null;
@@ -346,6 +367,7 @@ public class AllFeaturesForDL {
             else {
                 itemUserFollow = (Map<String, Map<String, Double>>) cache.get(itemUserFollowSql);
             }
+            log.info("trainPeriod: " + i + ", item user follow size: " + itemUserFollow.size());
             mergeMap(itemUserFollowMap, itemUserFollow);
         }
 
@@ -493,6 +515,8 @@ public class AllFeaturesForDL {
         log.info("positive: " + positive);
         log.info("negative: " + negative);
 
+        List<String[]> allLines = new ArrayList<>();
+
         CSVWriter writer = new CSVWriter(new FileWriter(path + "/" + filename), ',', '\0');
         Map<String, Object> max = getMax(lines);
         writer.writeNext(max.keySet().toArray(new String[0]));
@@ -504,9 +528,11 @@ public class AllFeaturesForDL {
                 ++idx;
             }
 
-            writer.writeNext(array);
+            allLines.add(array);
+//            writer.writeNext(array);
         }
 
+        writer.writeAll(allLines);
         writer.close();
     }
 
@@ -516,10 +542,6 @@ public class AllFeaturesForDL {
                 line.put(entry.getKey(), entry.getValue());
             }
         }
-    }
-
-    private static void merge(Map<String, Double> totalMap, Map<String, Double> featureMap){
-        totalMap.putAll(featureMap);
     }
 
     private static void mergeMap(Map<String, Map<String, Double>> totalFeatureMap, Map<String, Map<String, Double>> featureMap){
