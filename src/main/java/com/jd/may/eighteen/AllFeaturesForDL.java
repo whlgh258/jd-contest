@@ -105,6 +105,33 @@ public class AllFeaturesForDL {
         Map<String, Map<String, Double>> itemUserCartDeleteMap = new HashMap<>();
         Map<String, Map<String, Double>> itemUserFollowMap = new HashMap<>();
 
+        List<String> userCountClickKey = new ArrayList<>();
+        List<String> userCountDetailKey = new ArrayList<>();
+        List<String> userCountCartKey = new ArrayList<>();
+        List<String> userCountCartDeleteKey = new ArrayList<>();
+        List<String> userCountFollowKey = new ArrayList<>();
+        List<String> userSumKey = new ArrayList<>();
+        List<String> userAvgKey = new ArrayList<>();
+        List<String> itemCountKey = new ArrayList<>();
+        List<String> itemSumKey = new ArrayList<>();
+        List<String> itemAvgKey = new ArrayList<>();
+        List<String> userItemCountKey = new ArrayList<>();
+        List<String> userItemSumKey = new ArrayList<>();
+        List<String> userItemAvgKey = new ArrayList<>();
+        List<String> userPopularKey = new ArrayList<>();
+        List<String> itemPopularKey = new ArrayList<>();
+        List<String> itemActionUserCountKey = new ArrayList<>();
+        List<String> userItemClickKey = new ArrayList<>();
+        List<String> userItemDetailKey = new ArrayList<>();
+        List<String> userItemCartKey = new ArrayList<>();
+        List<String> userItemCartDeleteKey = new ArrayList<>();
+        List<String> userItemFollowKey = new ArrayList<>();
+        List<String> itemUserClickKey = new ArrayList<>();
+        List<String> itemUserDetailKey = new ArrayList<>();
+        List<String> itemUserCartKey = new ArrayList<>();
+        List<String> itemUserCartDeleteKey = new ArrayList<>();
+        List<String> itemUserFollowKey = new ArrayList<>();
+
         for(int i = trainStartPeriod; i <= trainEndPeriod; i++) {
             int diff = labelPeriod - i;
             double decay = decayMap.get(diff);
@@ -168,7 +195,7 @@ public class AllFeaturesForDL {
             mergeMap(userItemClickMap, userItemClick);
 
             String userItemDetailSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where detail>0 and action_period=" + i + " group by user_id";
-                Map<String, Map<String, Double>> userItemDetail = ItemBuyUsers.itemUserCount(userItemDetailSql, "user_id", actionPeriod, "user_distinct_item_detail_");
+            Map<String, Map<String, Double>> userItemDetail = ItemBuyUsers.itemUserCount(userItemDetailSql, "user_id", actionPeriod, "user_distinct_item_detail_");
             mergeMap(userItemDetailMap, userItemDetail);
 
             String userItemCartSql = "select user_id,round(log(count(distinct sku_id)+1),3) as count from " + tablename + " where cart>0 and action_period=" + i + " group by user_id";
@@ -192,7 +219,7 @@ public class AllFeaturesForDL {
             mergeMap(itemUserDetailMap, itemUserDetail);
 
             String itemUserCartSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where cart>0 and action_period=" + i + " group by sku_id";
-                Map<String, Map<String, Double>> itemUserCart = ItemBuyUsers.itemUserCount(itemUserCartSql, "sku_id", actionPeriod, "item_distinct_user_cart_");
+            Map<String, Map<String, Double>> itemUserCart = ItemBuyUsers.itemUserCount(itemUserCartSql, "sku_id", actionPeriod, "item_distinct_user_cart_");
             mergeMap(itemUserCartMap, itemUserCart);
 
             String itemUserCartDeleteSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where cart_delete>0 and action_period=" + i + " group by sku_id";
@@ -200,8 +227,31 @@ public class AllFeaturesForDL {
             mergeMap(itemUserCartDeleteMap, itemUserCartDelete);
 
             String itemUserFollowSql = "select sku_id,round(log(count(distinct user_id)+1),3) as count from " + tablename + " where follow>0 and action_period=" + i + " group by sku_id";
-                Map<String, Map<String, Double>> itemUserFollow = ItemBuyUsers.itemUserCount(itemUserFollowSql, "sku_id", actionPeriod, "item_distinct_user_follow_");
+            Map<String, Map<String, Double>> itemUserFollow = ItemBuyUsers.itemUserCount(itemUserFollowSql, "sku_id", actionPeriod, "item_distinct_user_follow_");
             mergeMap(itemUserFollowMap, itemUserFollow);
+
+            userCountClickKey.add("user_count_click_" + actionPeriod);
+            userSumKey.add("user_count_click_" + actionPeriod);
+            userAvgKey.add("user_count_click_" + actionPeriod);
+            itemCountKey.add("user_count_click_" + actionPeriod);
+            itemSumKey.add("user_count_click_" + actionPeriod);
+            itemAvgKey.add("user_count_click_" + actionPeriod);
+            userItemCountKey.add("user_count_click_" + actionPeriod);
+            userItemSumKey.add("user_count_click_" + actionPeriod);
+            userItemAvgKey.add("user_count_click_" + actionPeriod);
+            userPopularKey.add("user_count_click_" + actionPeriod);
+            itemPopularKey.add("user_count_click_" + actionPeriod);
+            itemActionUserCountKey.add("user_count_click_" + actionPeriod);
+            userItemClickKey.add("user_count_click_" + actionPeriod);
+            userItemDetailKey.add("user_count_click_" + actionPeriod);
+            userItemCartKey.add("user_count_click_" + actionPeriod);
+            userItemCartDeleteKey.add("user_count_click_" + actionPeriod);
+            userItemFollowKey.add("user_count_click_" + actionPeriod);
+            itemUserClickKey.add("user_count_click_" + actionPeriod);
+            itemUserDetailKey.add("user_count_click_" + actionPeriod);
+            itemUserCartKey.add("user_count_click_" + actionPeriod);
+            itemUserCartDeleteKey.add("user_count_click_" + actionPeriod);
+            itemUserFollowKey.add("user_count_click_" + actionPeriod);
         }
 
         Map<String, Long> labelMap = new HashMap<>();

@@ -71,24 +71,24 @@ public class DataGenerator {
 //        AllFeaturesForDL.features("data_DL.csv", "user_action_2", false);
 
 
-        /*for(int i = 1; i < 15; i++){
-            String path = "/home/wanghl/jd_contest/0517/";
+        for(int i = 1; i < 5; i++){
+            String path = "/home/wanghl/jd_contest/0518/";
             path += i + "/";
             File file = new File(path);
             if(!file.exists()){
                 file.mkdirs();
             }
-            for(int j = 1; j < 15 && (i + j) <= 3; j++){
+            for(int j = 1; j < 15 && (i + j) <= 15; j++){
                 System.out.println(i + ": " + j + ": " + (j + 1) + "--->" + (j + i));
                 String filename = "data_DL_" + j + "_" + (j + 1) + "_" + (j + i) + ".csv";
                 AllFeaturesForDL.features(filename, j, (j + 1), (j + i), "user_action_2", false, file.getAbsolutePath());
                 log.info("--------------------------------------------------------------------------------------------------------------------------");
             }
-        }*/
+        }
 
-        for(int j = 1; j <= 15; j++){
+        /*for(int j = 1; j <= 15; j++){
             System.out.println(0 + ": " + j + ": " + (1) + "--->" + (j));
-            String path = "/home/wanghl/jd_contest/0517/";
+            String path = "/home/wanghl/jd_contest/0518/";
             path += j + "/";
             File file = new File(path);
             if(!file.exists()){
@@ -98,7 +98,7 @@ public class DataGenerator {
             System.out.println(filename);
             AllFeaturesForDL.features(filename, -1, 1, j, "user_action_3", true, file.getAbsolutePath());
             System.out.println("--------------------------------------------------------------------------------------------------------------------------");
-        }
+        }*/
     }
 }
 
