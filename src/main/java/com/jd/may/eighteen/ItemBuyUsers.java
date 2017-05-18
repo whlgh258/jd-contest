@@ -13,7 +13,7 @@ import java.util.Map;
 public class ItemBuyUsers {
     private static final Logger log = Logger.getLogger(ItemBuyUsers.class);
 
-    public static Map<String, Map<String, Double>> itemUserCount(String sql, String key, int labelPeriod, int actionPeriod, String mapKey){
+    public static Map<String, Map<String, Double>> itemUserCount(String sql, String key, int actionPeriod, String mapKey){
         Map<String, Map<String, Double>> retMap = new HashMap<>();
         log.info("sql: " + sql);
         List<Map<String, Object>> result = DBOperation.queryBySql(sql);
@@ -23,7 +23,7 @@ public class ItemBuyUsers {
             double count = (double) row.get("count");
 
             Map<String, Double> map = new HashMap<>();
-            map.put(mapKey + labelPeriod + "_" + actionPeriod, count);
+            map.put(mapKey + actionPeriod, count);
             retMap.put(id, map);
         }
 

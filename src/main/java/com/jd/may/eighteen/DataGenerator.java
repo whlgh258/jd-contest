@@ -78,7 +78,7 @@ public class DataGenerator {
             if(!file.exists()){
                 file.mkdirs();
             }
-            for(int j = 1; j < 15 && (i + j) <= 15; j++){
+            for(int j = 1; j < 15 && (i + j) <= 3; j++){
                 System.out.println(i + ": " + j + ": " + (j + 1) + "--->" + (j + i));
                 String filename = "data_DL_" + j + "_" + (j + 1) + "_" + (j + i) + ".csv";
                 AllFeaturesForDL.features(filename, j, (j + 1), (j + i), "user_action_2", false, file.getAbsolutePath());
