@@ -1,11 +1,11 @@
-package com.jd.may.fifteen;
+package com.jd.may.eighteen;
+
+import multithreads.DBOperation;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import multithreads.DBOperation;
-import org.apache.log4j.Logger;
 
 /**
  * Created by wanghl on 17-5-7.
@@ -21,7 +21,7 @@ public class Popular {
     }
 
     public static Map<String, Map<String, Double>> itemPopular(String tablename, int labelPeriod, int actionPeriod, String mapKey){
-        String sql = "select sku_id,round(log(sum(click)*0.01+sum(buy)*5+sum(detail)*0.1+sum(cart)*2+sum(cart_delete)+sum(follow)*3 + 1),3) as popular from " + tablename + " where sku_id=39065 and action_period=" + actionPeriod + " group by sku_id";
+        String sql = "select sku_id,round(log(sum(click)*0.01+sum(buy)*5+sum(detail)*0.1+sum(cart)*2+sum(cart_delete)+sum(follow)*3 + 1),3) as popular from " + tablename + " where action_period=" + actionPeriod + " group by sku_id";
 
         log.info("item popular sql: " + sql);
 
