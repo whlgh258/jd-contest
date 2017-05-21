@@ -5,8 +5,7 @@ predict = h2o.importFile("/home/wanghl/jd_contest/0519/1/predict_DL_0_1_1.csv")
 predict[,factorList] = as.factor(predict[,factorList])
 predict[,modelId] = as.factor(predict[,modelId])
 
-
-data <- h2o.importFile("/home/wanghl/jd_contest/0519/1/data_DL_1_2_2.csv")
+data <- h2o.importFile("/home/wanghl/jd_contest/0519/1/data_DL_2_3_3.csv")
 parts <- h2o.splitFrame(data, c(0.8))
 train	<-parts[[1]]
 test	<-parts[[2]]
@@ -29,8 +28,8 @@ test[,modelId] = as.factor(test[,modelId])
 x = setdiff(x, "user_id")
 x = setdiff(x, "sku_id")
 
-m4_1_2_2 <- h2o.deeplearning(x, y, train, nfolds=5,
-  model_id = "m4_1_2_2", hidden = c(400,500),
+m4_2_3_3 <- h2o.deeplearning(x, y, train, nfolds=5,
+  model_id = "m4_2_3_3", hidden = c(400,500),
   activation = "RectifierWithDropout",
   l1 = 0.00001,
   l2 = 0.0001,
@@ -47,9 +46,9 @@ m4_1_2_2 <- h2o.deeplearning(x, y, train, nfolds=5,
   epochs = 600
   )
 
-p4 = h2o.predict(m4_1_2_2, predict)
+p4 = h2o.predict(m4_2_3_3, predict)
 p4bind = h2o.cbind(predict$user_id,predict$sku_id,p4$predict,p4$p0)
 p4df = as.data.frame(p4bind)
 nrow(p4df[p4df$predict==0,])
 result4 = p4df[p4df$predict==0,]
-write.csv(result4, file = "/home/wanghl/jd_contest/0519/result/result_1_2_2.csv", row.names=FALSE, quote =FALSE)
+write.csv(result4, file = "/home/wanghl/jd_contest/0519/result/result_2_3_3.csv", row.names=FALSE, quote =FALSE)
