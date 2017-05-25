@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -23,7 +24,12 @@ public class Result {
 
         Map<String, Double> map = new HashMap<>();
         Map<String, Double> result = new HashMap<>();
-        for(String filename : dir.list()){
+        for(String filename : dir.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.contains(".csv");
+            }
+        })){
             CSVReader reader = new CSVReader(new FileReader(path + "/" + filename));
             List<String[]> lines = reader.readAll();
             for(String[] line : lines){
@@ -75,7 +81,7 @@ public class Result {
         }
 
         System.out.println(users.size());
-//        allLines = allLines.subList(0, 1500);
+        allLines = allLines.subList(0, 3000);
 
         List<String[]> lines = new ArrayList<>();
         for(String[] line : allLines){
