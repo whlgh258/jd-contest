@@ -29,7 +29,7 @@ x = setdiff(x, "user_id")
 x = setdiff(x, "sku_id")
 
 m4_13_14_14 <- h2o.deeplearning(x, y, train, nfolds=5,
-  model_id = "m4_13_14_14", hidden = c(400,500),
+  model_id = "m4_13_14_14", hidden = c(300:400),
   activation = "RectifierWithDropout",
   l1 = 0.00001,
   l2 = 0.0001,
@@ -43,7 +43,7 @@ m4_13_14_14 <- h2o.deeplearning(x, y, train, nfolds=5,
   stopping_metric = "misclassification",
   stopping_tolerance = 0.001,
   stopping_rounds = 8,
-  epochs = 600
+  epochs = 500
   )
 
 p4 = h2o.predict(m4_13_14_14, predict)
